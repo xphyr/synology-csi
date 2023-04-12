@@ -14,15 +14,17 @@ import (
 )
 
 type LunInfo struct {
-	Name             string `json:"name"`
-	Uuid             string `json:"uuid"`
-	LunType          int    `json:"type"`
-	Location         string `json:"location"`
-	Size             uint64 `json:"size"`
-	Used             uint64 `json:"allocated_size"`
-	Status           string `json:"status"`
-	FlashcacheStatus string `json:"flashcache_status"`
-	IsActionLocked   bool   `json:"is_action_locked"`
+	Name             string         `json:"name"`
+	Uuid             string         `json:"uuid"`
+	LunType          int            `json:"type"`
+	Location         string         `json:"location"`
+	Size             uint64         `json:"size"`
+	Used             uint64         `json:"allocated_size"`
+	Status           string         `json:"status"`
+	FlashcacheStatus string         `json:"flashcache_status"`
+	IsActionLocked   bool           `json:"is_action_locked"`
+	DirectIOPattern  int            `json:"direct_io_pattern"`
+	DevAttribs       []LunDevAttrib `json:"dev_attribs"`
 }
 
 type MappedLun struct {
@@ -72,7 +74,8 @@ type LunCreateSpec struct {
 	Location    string
 	Size        int64
 	Type        string
-	DevAttribs  []LunDevAttrib
+	DirectIOPattern int
+	DevAttribs      []LunDevAttrib
 }
 
 type LunUpdateSpec struct {
@@ -166,7 +169,11 @@ func (dsm *DSM) LunCreate(spec LunCreateSpec) (string, error) {
 	params.Add("size", strconv.FormatInt(int64(spec.Size), 10))
 	params.Add("type", spec.Type)
 	params.Add("location", spec.Location)
+<<<<<<< HEAD
 	params.Add("description", spec.Description)
+=======
+	params.Add("direct_io_pattern", strconv.FormatInt(int64(spec.DirectIOPattern), 10))
+>>>>>>> 323bff5 (return extra lun info and allow create with direct_io_pattern)
 
 	js, err := json.Marshal(spec.DevAttribs)
 	if err != nil {
