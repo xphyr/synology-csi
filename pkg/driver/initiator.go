@@ -29,7 +29,7 @@ import (
 )
 
 type initiatorDriver struct {
-	chapUser string
+	chapUser     string
 	chapPassword string
 }
 
@@ -169,8 +169,8 @@ func listSessionsByIqn(targetIqn string) (matchedSessions []iscsiSession) {
 	return matchedSessions
 }
 
-func (d *initiatorDriver) login(targetIqn string, portal string) error{
-	if (hasSession(targetIqn, portal)) {
+func (d *initiatorDriver) login(targetIqn string, portal string) error {
+	if hasSession(targetIqn, portal) {
 		log.Infof("Session[%s] already exists.", targetIqn)
 		return nil
 	}
@@ -190,8 +190,8 @@ func (d *initiatorDriver) login(targetIqn string, portal string) error{
 	return nil
 }
 
-func (d *initiatorDriver) logout(targetIqn string, ip string) error{
-	if (!hasSession(targetIqn, "")) {
+func (d *initiatorDriver) logout(targetIqn string, ip string) error {
+	if !hasSession(targetIqn, "") {
 		log.Infof("Session[%s] doesn't exist.", targetIqn)
 		return nil
 	}
@@ -208,8 +208,8 @@ func (d *initiatorDriver) logout(targetIqn string, ip string) error{
 	return nil
 }
 
-func (d *initiatorDriver) rescan(targetIqn string) error{
-	if (!hasSession(targetIqn, "")) {
+func (d *initiatorDriver) rescan(targetIqn string) error {
+	if !hasSession(targetIqn, "") {
 		msg := fmt.Sprintf("Session[%s] doesn't exist.", targetIqn)
 		log.Error(msg)
 		return errors.New(msg)

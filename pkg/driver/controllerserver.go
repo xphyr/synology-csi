@@ -19,16 +19,17 @@ package driver
 import (
 	"context"
 	"fmt"
-	log "github.com/sirupsen/logrus"
-	"time"
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 
-	"google.golang.org/protobuf/types/known/timestamppb"
+	log "github.com/sirupsen/logrus"
+
 	"github.com/container-storage-interface/spec/lib/go/csi"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/SynologyOpenSource/synology-csi/pkg/interfaces"
 	"github.com/SynologyOpenSource/synology-csi/pkg/models"
@@ -156,14 +157,21 @@ func (cs *controllerServer) CreateVolume(ctx context.Context, req *csi.CreateVol
 		log.Debugf("Volume [%s] already exists in [%s], backing name: [%s]", volName, k8sVolume.DsmIp, k8sVolume.Name)
 	}
 
-	if (k8sVolume.Protocol == utils.ProtocolIscsi && k8sVolume.SizeInBytes != sizeInByte) ||
-		(k8sVolume.Protocol == utils.ProtocolSmb && utils.BytesToMB(k8sVolume.SizeInBytes) != utils.BytesToMBCeil(sizeInByte)) {
-		return nil , status.Errorf(codes.AlreadyExists, "Already existing volume name with different capacity")
+	if k8sVolume.Protocol == utils.ProtocolIscsi && k8sVolume.SizeInBytes != sizeInByte {
+		// iscsi lun does not match target size therefor there is an error
+		return nil, status.Errorf(codes.AlreadyExists, "Already existing volume name with different capacity")
+	}
+
+	// If the filesystem for a volume on a synology is ext4, the SizeInBytes will always return 0
+	// so if the protocol is SMB and the sizeInBytes is larger than 0 we can test to see if the quotas match
+	// otherwise logically we just skip this test and assume that a volumeName match means they are the same volume
+	if k8sVolume.Protocol == utils.ProtocolSmb && k8sVolume.SizeInBytes > 0 && utils.BytesToMB(k8sVolume.SizeInBytes) != utils.BytesToMBCeil(sizeInByte) {
+		return nil, status.Errorf(codes.AlreadyExists, "Already existing volume name with different capacity")
 	}
 
 	return &csi.CreateVolumeResponse{
 		Volume: &csi.Volume{
-			VolumeId: k8sVolume.VolumeId,
+			VolumeId:      k8sVolume.VolumeId,
 			CapacityBytes: k8sVolume.SizeInBytes,
 			ContentSource: volContentSrc,
 			VolumeContext: map[string]string{
@@ -173,6 +181,7 @@ func (cs *controllerServer) CreateVolume(ctx context.Context, req *csi.CreateVol
 			},
 		},
 	}, nil
+
 }
 
 func (cs *controllerServer) DeleteVolume(ctx context.Context, req *csi.DeleteVolumeRequest) (*csi.DeleteVolumeResponse, error) {
@@ -273,7 +282,7 @@ func (cs *controllerServer) ListVolumes(ctx context.Context, req *csi.ListVolume
 	}
 
 	return &csi.ListVolumesResponse{
-		Entries: entries,
+		Entries:   entries,
 		NextToken: nextToken,
 	}, nil
 }
@@ -339,11 +348,11 @@ func (cs *controllerServer) CreateSnapshot(ctx context.Context, req *csi.CreateS
 		}
 		return &csi.CreateSnapshotResponse{
 			Snapshot: &csi.Snapshot{
-				SizeBytes: orgSnap.SizeInBytes,
-				SnapshotId: orgSnap.Uuid,
+				SizeBytes:      orgSnap.SizeInBytes,
+				SnapshotId:     orgSnap.Uuid,
 				SourceVolumeId: orgSnap.ParentUuid,
-				CreationTime: timestamppb.New(time.Unix(orgSnap.CreateTime, 0)),
-				ReadyToUse: (orgSnap.Status == "Healthy"),
+				CreationTime:   timestamppb.New(time.Unix(orgSnap.CreateTime, 0)),
+				ReadyToUse:     (orgSnap.Status == "Healthy"),
 			},
 		}, nil
 	}
@@ -365,11 +374,11 @@ func (cs *controllerServer) CreateSnapshot(ctx context.Context, req *csi.CreateS
 
 	return &csi.CreateSnapshotResponse{
 		Snapshot: &csi.Snapshot{
-			SizeBytes: snapshot.SizeInBytes,
-			SnapshotId: snapshot.Uuid,
+			SizeBytes:      snapshot.SizeInBytes,
+			SnapshotId:     snapshot.Uuid,
 			SourceVolumeId: snapshot.ParentUuid,
-			CreationTime: timestamppb.New(time.Unix(snapshot.CreateTime, 0)),
-			ReadyToUse: (snapshot.Status == "Healthy"),
+			CreationTime:   timestamppb.New(time.Unix(snapshot.CreateTime, 0)),
+			ReadyToUse:     (snapshot.Status == "Healthy"),
 		},
 	}, nil
 }
@@ -405,7 +414,7 @@ func (cs *controllerServer) ListSnapshots(ctx context.Context, req *csi.ListSnap
 	pagingSkip := ("" != startingToken)
 	var snapshots []*models.K8sSnapshotRespSpec
 
-	if (srcVolId != "") {
+	if srcVolId != "" {
 		snapshots = cs.dsmService.ListSnapshots(srcVolId)
 	} else {
 		snapshots = cs.dsmService.ListAllSnapshots()
@@ -433,11 +442,11 @@ func (cs *controllerServer) ListSnapshots(ctx context.Context, req *csi.ListSnap
 		}
 		entries = append(entries, &csi.ListSnapshotsResponse_Entry{
 			Snapshot: &csi.Snapshot{
-				SizeBytes: snapshot.SizeInBytes,
-				SnapshotId: snapshot.Uuid,
+				SizeBytes:      snapshot.SizeInBytes,
+				SnapshotId:     snapshot.Uuid,
 				SourceVolumeId: snapshot.ParentUuid,
-				CreationTime: timestamppb.New(time.Unix(snapshot.CreateTime, 0)),
-				ReadyToUse: (snapshot.Status == "Healthy"),
+				CreationTime:   timestamppb.New(time.Unix(snapshot.CreateTime, 0)),
+				ReadyToUse:     (snapshot.Status == "Healthy"),
 			},
 		})
 
@@ -449,7 +458,7 @@ func (cs *controllerServer) ListSnapshots(ctx context.Context, req *csi.ListSnap
 	}
 
 	return &csi.ListSnapshotsResponse{
-		Entries: entries,
+		Entries:   entries,
 		NextToken: nextToken,
 	}, nil
 }
@@ -474,7 +483,7 @@ func (cs *controllerServer) ControllerExpandVolume(ctx context.Context, req *csi
 	}
 
 	return &csi.ControllerExpandVolumeResponse{
-		CapacityBytes: k8sVolume.SizeInBytes,
+		CapacityBytes:         k8sVolume.SizeInBytes,
 		NodeExpansionRequired: (k8sVolume.Protocol == utils.ProtocolIscsi),
 	}, nil
 }

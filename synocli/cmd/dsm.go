@@ -5,10 +5,10 @@ package cmd
 
 import (
 	"fmt"
-	"os"
-	"github.com/spf13/cobra"
 	"github.com/SynologyOpenSource/synology-csi/pkg/dsm/common"
 	"github.com/SynologyOpenSource/synology-csi/pkg/dsm/webapi"
+	"github.com/spf13/cobra"
+	"os"
 )
 
 var https = false
@@ -101,7 +101,7 @@ func ListDsms(id int) ([]*webapi.DSM, error) {
 		return nil, fmt.Errorf("Invalid dsmId: %d", id)
 	}
 
-	for i, _ := range info.Clients {
+	for i := range info.Clients {
 		if id != -1 && id != i {
 			continue
 		}
