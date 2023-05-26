@@ -325,7 +325,9 @@ func (ns *nodeServer) nodeStageISCSIVolume(ctx context.Context, spec *models.Nod
 	fsType := spec.VolumeCapability.GetMount().GetFsType()
 	options := append([]string{"rw"}, spec.VolumeCapability.GetMount().GetMountFlags()...)
 
-	if err = ns.Mounter.FormatAndMount(volumeMountPath, spec.StagingTargetPath, fsType, options); err != nil {
+	formatOptions := utils.StringToSlice(spec.FormatOptions)
+
+	if err = ns.Mounter.FormatAndMountSensitiveWithFormatOptions(volumeMountPath, spec.StagingTargetPath, fsType, options, nil, formatOptions); err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
@@ -407,6 +409,7 @@ func (ns *nodeServer) NodeStageVolume(ctx context.Context, req *csi.NodeStageVol
 		VolumeCapability:  volumeCapability,
 		Dsm:               req.VolumeContext["dsm"],
 		Source:            req.VolumeContext["source"], // filled by CreateVolume response
+		FormatOptions:     req.VolumeContext["formatOptions"],
 	}
 
 	switch req.VolumeContext["protocol"] {

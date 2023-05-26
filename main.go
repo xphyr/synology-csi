@@ -5,11 +5,12 @@
 package main
 
 import (
-	log "github.com/sirupsen/logrus"
-	"github.com/spf13/cobra"
 	"os"
 	"os/signal"
 	"syscall"
+
+	log "github.com/sirupsen/logrus"
+	"github.com/spf13/cobra"
 
 	"github.com/SynologyOpenSource/synology-csi/pkg/driver"
 	"github.com/SynologyOpenSource/synology-csi/pkg/dsm/common"
@@ -24,7 +25,7 @@ var (
 	csiClientInfoPath = "/etc/synology/client-info.yml"
 	// Logging
 	logLevel       = "info"
-	webapiDebug    = false
+	webapiDebug    = true
 	multipathForUC = true
 )
 

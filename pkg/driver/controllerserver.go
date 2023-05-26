@@ -128,6 +128,10 @@ func (cs *controllerServer) CreateVolume(ctx context.Context, req *csi.CreateVol
 		return nil, status.Error(codes.InvalidArgument, "Unsupported volume protocol")
 	}
 
+	// not needed during CreateVolume method
+	// used only in NodeStageVolume though VolumeContext
+	formatOptions := params["formatOptions"]
+
 	spec := &models.CreateK8sVolumeSpec{
 		DsmIp:            params["dsm"],
 		K8sVolumeName:    volName,
@@ -175,9 +179,10 @@ func (cs *controllerServer) CreateVolume(ctx context.Context, req *csi.CreateVol
 			CapacityBytes: k8sVolume.SizeInBytes,
 			ContentSource: volContentSrc,
 			VolumeContext: map[string]string{
-				"dsm":      k8sVolume.DsmIp,
-				"protocol": k8sVolume.Protocol,
-				"source":   k8sVolume.Source,
+				"dsm":           k8sVolume.DsmIp,
+				"protocol":      k8sVolume.Protocol,
+				"source":        k8sVolume.Source,
+				"formatOptions": formatOptions,
 			},
 		},
 	}, nil

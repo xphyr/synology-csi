@@ -76,7 +76,7 @@ func (service *DsmService) createSMBVolumeBySnapshot(dsm *webapi.DSM, spec *mode
 			status.Errorf(codes.OutOfRange, "Requested share quotaMB [%d] is not equal to snapshot restore quotaMB [%d]", newSizeInMB, shareInfo.QuotaValueInMB)
 	}
 
-	log.Debugf("[%s] createSMBVolumeBySnapshot Successfully. VolumeId: %s", dsm.Ip, shareInfo.Uuid)
+	log.Debugf("[%s] createSMBVolumeBySnapshot Successful. VolumeId: %s, Quota: %d", dsm.Ip, shareInfo.Uuid, shareInfo.QuotaValueInMB)
 
 	return DsmShareToK8sVolume(dsm.Ip, shareInfo), nil
 }
@@ -112,7 +112,13 @@ func (service *DsmService) createSMBVolumeByVolume(dsm *webapi.DSM, spec *models
 			status.Errorf(codes.Internal, fmt.Sprintf("Failed to get existed Share with name: [%s], err: %v", spec.ShareName, err))
 	}
 
-	/*
+	volume, _ := dsm.VolumeGet(spec.Location)
+	if volume.FsType == "ext4" {
+		// ext4 filesystems do not support Quota, so set size to 0 per spec
+		spec.Size = 0
+	} else {
+		// This code was already here, so we will keep this in place
+		// but it should only run if the volume supports quota
 		if shareInfo.QuotaValueInMB == 0 {
 			// known issue for some DS, manually set quota to the new share
 			if err := dsm.SetShareQuota(shareInfo, newSizeInMB); err != nil {
@@ -123,9 +129,9 @@ func (service *DsmService) createSMBVolumeByVolume(dsm *webapi.DSM, spec *models
 
 			shareInfo.QuotaValueInMB = newSizeInMB
 		}
-	*/
+	}
 
-	log.Debugf("[%s] createSMBVolumeByVolume Successfully. VolumeId: %s, Quota: %v", dsm.Ip, shareInfo.Uuid, shareInfo.QuotaValueInMB)
+	log.Debugf("[%s] createSMBVolumeByVolume Successful. VolumeId: %s, Quota: %d", dsm.Ip, shareInfo.Uuid, shareInfo.QuotaValueInMB)
 
 	return DsmShareToK8sVolume(dsm.Ip, shareInfo), nil
 }
@@ -143,13 +149,20 @@ func (service *DsmService) createSMBVolumeByDsm(dsm *webapi.DSM, spec *models.Cr
 	}
 
 	// 2. Check if location exists
-	_, err := dsm.VolumeGet(spec.Location)
+	volume, err := dsm.VolumeGet(spec.Location)
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, fmt.Sprintf("Unable to find location %s", spec.Location))
 	}
 
 	// 3. Create Share
-	sizeInMB := utils.BytesToMBCeil(spec.Size)
+	var sizeInMB int64
+	if volume.FsType == "ext4" {
+		// quota not supported on ext4 volumes
+		sizeInMB = 0
+	} else {
+		sizeInMB = utils.BytesToMBCeil(spec.Size)
+	}
+
 	shareSpec := webapi.ShareCreateSpec{
 		Name: spec.ShareName,
 		ShareInfo: webapi.ShareInfo{
@@ -173,10 +186,10 @@ func (service *DsmService) createSMBVolumeByDsm(dsm *webapi.DSM, spec *models.Cr
 	shareInfo, err := dsm.ShareGet(spec.ShareName)
 	if err != nil {
 		return nil,
-			status.Errorf(codes.Internal, fmt.Sprintf("Failed to get existed Share with name: %s, err: %v", spec.ShareName, err))
+			status.Errorf(codes.Internal, fmt.Sprintf("Failed to get existing Share with name: %s, err: %v", spec.ShareName, err))
 	}
 
-	log.Debugf("[%s] createSMBVolumeByDsm Successfully. VolumeId: %s", dsm.Ip, shareInfo.Uuid)
+	log.Debugf("[%s] createSMBVolumeByDsm Successful. VolumeId: %s, Quota: %d", dsm.Ip, shareInfo.Uuid, shareInfo.QuotaValueInMB)
 
 	return DsmShareToK8sVolume(dsm.Ip, shareInfo), nil
 }

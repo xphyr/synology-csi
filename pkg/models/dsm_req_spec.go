@@ -4,6 +4,7 @@ package models
 
 import (
 	"fmt"
+
 	"github.com/SynologyOpenSource/synology-csi/pkg/dsm/webapi"
 	"github.com/container-storage-interface/spec/lib/go/csi"
 )
@@ -65,6 +66,7 @@ type NodeStageVolumeSpec struct {
 	VolumeCapability  *csi.VolumeCapability
 	Dsm               string
 	Source            string
+	FormatOptions     string
 }
 
 type ByVolumeId []*K8sVolumeRespSpec

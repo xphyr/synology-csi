@@ -10,5 +10,6 @@ provisioner: csi.san.synology.com
 #   dsm: '1.1.1.1'
 #   location: '/volume1'
 #   fsType: 'ext4'
+#   formatOptions: "-E nodiscard"
 reclaimPolicy: Retain
 allowVolumeExpansion: true
