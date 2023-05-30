@@ -1,3 +1,24 @@
+# Fork NOTES 
+
+This is a FORK of the original Synology CSI Driver. There is NO support for this, (however feel free to open a issue and maybe I will take a look). You are on your own if it causes catastrophic data loss, or an itchy rash, or loss of hair or any other unlisted side-effect. Use at your own risk.
+
+This fork contains the following:
+
+1. A possible fix for [Issue 52](https://github.com/SynologyOpenSource/synology-csi/issues/52)
+2. Merge [PR 4](https://github.com/SynologyOpenSource/synology-csi/pull/49) which addresses issue [Issue 25](https://github.com/SynologyOpenSource/synology-csi/issues/25) and makes formatting ext4 luns MUCH faster
+3. Updated all go module dependencies to latest releases
+4. Updated the Container (Docker) build process to use a recent Go compiler (from version 1.13 -> 1.20)
+5. Updated the deployment files to use the latest [CSI side cars](https://kubernetes-csi.github.io/docs/sidecar-containers.html). The versions in the existing deployment files are no longer supported
+6. Fix (sort of) for long delay in Web API Calls
+   * I have found that when `webapiDebug = true` is set [here](https://github.com/xphyr/synology-csi/blob/main/main.go#L28) the webapi calls to the synology run up to 20x faster. This creates a large amount of debug data but, provisioning storage goes from 1-5minutes down to 0 seconds. 
+
+I have published a container image that is based on the code in this Forked repo here: [xphyr/synology-csi](https://quay.io/repository/xphyr/synology-csi). There are two tagged versions that I have published there:
+   *  debug - quay.io/xphyr/synology-csi:debug
+   *  latest - quay.io/xphyr/synology-csi:latest
+The deployment files in this repo leverage the "degbug" version, feel free to change that to "latest" or compile your own copy. 
+
+If you run the "debug" version you may find that your storage gets provisioned much quicker. I am still looking to figure out why this is.
+
 # Synology CSI Driver for Kubernetes
 
 The official [Container Storage Interface](https://github.com/container-storage-interface) driver for Synology NAS.
