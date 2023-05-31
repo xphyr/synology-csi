@@ -10,7 +10,7 @@ This fork contains the following:
 4. Updated the Container (Docker) build process to use a recent Go compiler (from version 1.13 -> 1.20)
 5. Updated the deployment files to use the latest [CSI side cars](https://kubernetes-csi.github.io/docs/sidecar-containers.html). The versions in the existing deployment files are no longer supported
 6. Fix (sort of) for long delay in Web API Calls
-   * I have found that when `webapiDebug = true` is set [here](https://github.com/xphyr/synology-csi/blob/main/main.go#L28) the webapi calls to the synology run up to 20x faster. This creates a large amount of debug data but, provisioning storage goes from 1-5minutes down to 0 seconds. 
+   * I have found that when `webapiDebug = true` is set [here](https://github.com/xphyr/synology-csi/blob/main/main.go#L28) the webapi calls to the synology run up to 20x faster. This creates a large amount of debug data but, provisioning storage goes from 1-5minutes down to 10 seconds. 
 
 I have published a container image that is based on the code in this Forked repo here: [xphyr/synology-csi](https://quay.io/repository/xphyr/synology-csi). There are two tagged versions that I have published there:
    *  debug - quay.io/xphyr/synology-csi:debug
