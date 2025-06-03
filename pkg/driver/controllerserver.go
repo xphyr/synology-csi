@@ -53,7 +53,8 @@ func getSizeByCapacityRange(capRange *csi.CapacityRange) (int64, error) {
 		return 0, status.Error(codes.InvalidArgument, "Invalid input: limitBytes is smaller than requiredBytes")
 	}
 	if minSize < utils.UNIT_GB {
-		return 0, status.Error(codes.InvalidArgument, "Invalid input: required bytes is smaller than 1G")
+		// since the minSize is smaller than the Synology supports, bump the size up to the minimum required size
+		return 1 * utils.UNIT_GB, nil
 	}
 
 	return int64(minSize), nil
