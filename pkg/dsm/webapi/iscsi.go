@@ -8,9 +8,10 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
-	log "github.com/sirupsen/logrus"
+
 	"github.com/SynologyOpenSource/synology-csi/pkg/logger"
 	"github.com/SynologyOpenSource/synology-csi/pkg/utils"
+	log "github.com/sirupsen/logrus"
 )
 
 type LunInfo struct {
@@ -54,13 +55,13 @@ type TargetInfo struct {
 }
 
 type SnapshotInfo struct {
-	Name              string             `json:"name"`
-	Uuid              string             `json:"uuid"`
-	ParentUuid        string             `json:"parent_uuid"`
-	Status            string             `json:"status"`
-	TotalSize         int64              `json:"total_size"`
-	CreateTime        int64              `json:"create_time"`
-	RootPath          string             `json:"root_path"`
+	Name       string `json:"name"`
+	Uuid       string `json:"uuid"`
+	ParentUuid string `json:"parent_uuid"`
+	Status     string `json:"status"`
+	TotalSize  int64  `json:"total_size"`
+	CreateTime int64  `json:"create_time"`
+	RootPath   string `json:"root_path"`
 }
 
 type LunDevAttrib struct {
@@ -69,11 +70,11 @@ type LunDevAttrib struct {
 }
 
 type LunCreateSpec struct {
-	Name        string
-	Description string
-	Location    string
-	Size        int64
-	Type        string
+	Name            string
+	Description     string
+	Location        string
+	Size            int64
+	Type            string
 	DirectIOPattern int
 	DevAttribs      []LunDevAttrib
 }
@@ -84,9 +85,9 @@ type LunUpdateSpec struct {
 }
 
 type LunCloneSpec struct {
-	Name            string
-	SrcLunUuid      string
-	Location        string
+	Name       string
+	SrcLunUuid string
+	Location   string
 }
 
 type TargetCreateSpec struct {
@@ -169,11 +170,8 @@ func (dsm *DSM) LunCreate(spec LunCreateSpec) (string, error) {
 	params.Add("size", strconv.FormatInt(int64(spec.Size), 10))
 	params.Add("type", spec.Type)
 	params.Add("location", spec.Location)
-<<<<<<< HEAD
 	params.Add("description", spec.Description)
-=======
 	params.Add("direct_io_pattern", strconv.FormatInt(int64(spec.DirectIOPattern), 10))
->>>>>>> 323bff5 (return extra lun info and allow create with direct_io_pattern)
 
 	js, err := json.Marshal(spec.DevAttribs)
 	if err != nil {
