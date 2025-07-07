@@ -82,7 +82,6 @@ func setLogLevel(logLevel string) { // debug, info, warn, error, fatal
 	} else {
 		logrus.SetLevel(DefaultLogLevel)
 	}
-	return
 }
 
 func Init(logLevel string) {

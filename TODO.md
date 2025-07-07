@@ -6,7 +6,7 @@ The following is a list of tasks to bring the Synology CSI driver up to date.
 - [x] Update logic to handle PV requests that do not meet the minimum allocatable size and bump it up to 1Gb.
 - [ ] Merge existing PR Requests from upstream project
    - [x] [PR85 - Predefined tool paths](https://github.com/SynologyOpenSource/synology-csi/pull/85)
-   - [ ] [PR79 - Add basic CI Pipeline](https://github.com/SynologyOpenSource/synology-csi/pull/79)
+   - [x] [PR79 - Add basic CI Pipeline](https://github.com/SynologyOpenSource/synology-csi/pull/79)
      - [ ] Support Multi-arch (x86_64 and ARM) containers
      - [ ] Update docs and deployment files to use new ghcr.io repo
    - [X] [PR75 - Support for devAttribs](https://github.com/SynologyOpenSource/synology-csi/pull/75)
@@ -20,3 +20,4 @@ The following is a list of tasks to bring the Synology CSI driver up to date.
 - [x] `gofmt` to apply proper formatting and simplification to the entire codebase
   - [ ] ensure gofmt is applied as part of the build process/ci 
 - [x] apply `go-staticcheck` across all files and address issues.
+- [x] Bump to modern version of go compiler (1.24)

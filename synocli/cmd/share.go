@@ -5,12 +5,13 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/SynologyOpenSource/synology-csi/pkg/dsm/webapi"
-	"github.com/SynologyOpenSource/synology-csi/pkg/utils"
-	"github.com/spf13/cobra"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/SynologyOpenSource/synology-csi/pkg/dsm/webapi"
+	"github.com/SynologyOpenSource/synology-csi/pkg/utils"
+	"github.com/spf13/cobra"
 
 	"text/tabwriter"
 )
@@ -199,10 +200,7 @@ var cmdShareClone = &cobra.Command{
 			dsm.Logout()
 		}()
 
-		fromSnapshot := false
-		if len(args) >= 3 && args[2] == "true" {
-			fromSnapshot = true
-		}
+		fromSnapshot := len(args) >= 3 && args[2] == "true"
 
 		newName := args[0]
 		srcName := args[1]
@@ -437,7 +435,7 @@ func getShareLocalUserPermission(dsm *webapi.DSM, shareName string, userName str
 			return &info, nil
 		}
 	}
-	return nil, fmt.Errorf("Permission Not Found.")
+	return nil, fmt.Errorf("permission Not Found")
 }
 
 var cmdSharePermissionList = &cobra.Command{

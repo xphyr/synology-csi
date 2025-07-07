@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	ConfigPath      = "./../../config/client-info.yml"
+	ConfigPath      = "./../../config/client-info-template.yml"
 	SecretsFilePath = "./sanity-test-secret-file.yaml"
 )
 
@@ -42,7 +42,7 @@ func TestSanity(t *testing.T) {
 
 	info, err := common.LoadConfig(ConfigPath)
 	if err != nil {
-		t.Fatal(fmt.Sprintf("Failed to read config: %v", err))
+		t.Fatalf("Failed to read config: %v", err)
 	}
 
 	dsmService := service.NewDsmService()
@@ -61,14 +61,14 @@ func TestSanity(t *testing.T) {
 
 	cmdExecutor, err := hostexec.New(nil, "")
 	if err != nil {
-		t.Fatal(fmt.Sprintf("Failed to create command executor: %v\n", err))
+		t.Fatalf("Failed to create command executor: %v\n", err)
 	}
 	tools := driver.NewTools(cmdExecutor)
 
 	endpoint := "unix://" + endpointFile.Name()
 	drv, err := driver.NewControllerAndNodeDriver(nodeID, endpoint, dsmService, tools)
 	if err != nil {
-		t.Fatal(fmt.Sprintf("Failed to create driver: %v\n", err))
+		t.Fatalf("Failed to create driver: %v\n", err)
 	}
 	drv.Activate()
 
