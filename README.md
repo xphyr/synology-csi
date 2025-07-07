@@ -2,7 +2,7 @@
 
 The NOT official [Container Storage Interface](https://github.com/container-storage-interface) driver for Synology NAS.
 
-The [Official Synology CSI Driver](https://github.com/SynologyOpenSource/synology-csi), has not been updated, or seen any activity in about 1 year. I am going to try and pull together all the existing PRs that make sense into this code base, and then start to address the items on my [TODO](./TODO.md) list. I am not in any way affiliated with Synology, however I use the Synology CSI driver in my home lab. 
+The [Official Synology CSI Driver](https://github.com/xphyr/synology-csi), has not been updated, or seen any activity in about 1 year. I am going to try and pull together all the existing PRs that make sense into this code base, and then start to address the items on my [TODO](./TODO.md) list. I am not in any way affiliated with Synology, however I use the Synology CSI driver in my home lab. 
 
 There are over 134 forks of the upstream driver, as well as 8 PRs and over 40 Issues that have been filed but, have gone unanswered. I am hoping that maybe a few of us can come together and create a "community" version of this driver that is updated more frequently and has additional features added to it over time. Please feel free to reach out via issue or PR if you would like to contribute and assist with this little project.
 
@@ -10,7 +10,7 @@ There are over 134 forks of the upstream driver, as well as 8 PRs and over 40 Is
 Driver Name: csi.san.synology.com
 | Driver Version                                                                   | Image                                                                 | Supported K8s Version |
 | -------------------------------------------------------------------------------- | --------------------------------------------------------------------- | --------------------- |
-| [v1.2.0](https://github.com/SynologyOpenSource/synology-csi/tree/release-v1.2.0) | [synology-csi:v1.2.0](https://hub.docker.com/r/synology/synology-csi) | 1.20+                 |
+| [v1.2.0](https://github.com/xphyr/synology-csi/tree/release-v1.2.0) | [synology-csi:v1.2.0](https://hub.docker.com/r/synology/synology-csi) | 1.20+                 |
 
 
 
@@ -35,7 +35,7 @@ The Synology CSI driver supports:
 3. After you complete the steps below, the *full* deployment of the CSI driver, including the snapshotter, will be installed. If you don’t need the **Snapshot** feature, you can install the *basic* deployment of the CSI driver instead.
 
 ### Procedure
-1. Clone the git repository. `git clone https://github.com/SynologyOpenSource/synology-csi.git`
+1. Clone the git repository. `git clone https://github.com/xphyr/synology-csi.git`
 2. Enter the directory. `cd synology-csi`
 3. Copy the client-info-template.yml file. `cp config/client-info-template.yml config/client-info.yml`
 4. Edit `config/client-info.yml` to configure the connection information for DSM. You can specify **one or more** storage systems on which the CSI volumes will be created. Change the following parameters as needed:
