@@ -5,9 +5,10 @@
 package common
 
 import (
+	"os"
+
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v2"
-	"io/ioutil"
 )
 
 type ClientInfo struct {
@@ -23,7 +24,7 @@ type SynoInfo struct {
 }
 
 func LoadConfig(configPath string) (*SynoInfo, error) {
-	file, err := ioutil.ReadFile(configPath)
+	file, err := os.ReadFile(configPath)
 	if err != nil {
 		log.Errorf("Unable to open config file: %v", err)
 		return nil, err

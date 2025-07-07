@@ -2,7 +2,6 @@ package sanitytest
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"testing"
 
@@ -22,19 +21,19 @@ const (
 func TestSanity(t *testing.T) {
 	nodeID := "CSINode"
 
-	endpointFile, err := ioutil.TempFile("", "csi-gcs.*.sock")
+	endpointFile, err := os.CreateTemp("", "csi-gcs.*.sock")
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer os.Remove(endpointFile.Name())
 
-	stagingPath, err := ioutil.TempDir("", "csi-gcs-staging")
+	stagingPath, err := os.MkdirTemp("", "csi-gcs-staging")
 	if err != nil {
 		t.Fatal(err)
 	}
 	os.Remove(stagingPath)
 
-	targetPath, err := ioutil.TempDir("", "csi-gcs-target")
+	targetPath, err := os.MkdirTemp("", "csi-gcs-target")
 	if err != nil {
 		t.Fatal(err)
 	}
