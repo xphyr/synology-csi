@@ -529,11 +529,12 @@ func (ns *nodeServer) NodeUnstageVolume(ctx context.Context, req *csi.NodeUnstag
 		return nil, status.Error(codes.InvalidArgument, "Target path missing in request")
 	}
 
-	notMount, err := mount.IsNotMountPoint(ns.Mounter.Interface, stagingTargetPath)
+	isMount, err := ns.Mounter.IsMountPoint(stagingTargetPath)
+
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
-	if !notMount {
+	if isMount {
 		err = ns.Mounter.Unmount(stagingTargetPath)
 		if err != nil {
 			return nil, status.Error(codes.Internal, err.Error())
@@ -680,13 +681,13 @@ func (ns *nodeServer) NodeUnpublishVolume(ctx context.Context, req *csi.NodeUnpu
 		return nil, status.Errorf(codes.Internal, "%s", err.Error())
 	}
 
-	notMount, err := mount.IsNotMountPoint(ns.Mounter.Interface, targetPath)
+	isMount, err := ns.Mounter.IsMountPoint(targetPath)
 
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	if notMount {
+	if !isMount {
 		return &csi.NodeUnpublishVolumeResponse{}, nil
 	}
 
@@ -727,8 +728,9 @@ func (ns *nodeServer) NodeGetVolumeStats(ctx context.Context, req *csi.NodeGetVo
 			fmt.Sprintf("Volume[%s] is not found", volumeId))
 	}
 
-	notMount, err := mount.IsNotMountPoint(ns.Mounter.Interface, volumePath)
-	if err != nil || notMount {
+	isMount, err := ns.Mounter.IsMountPoint(volumePath)
+
+	if err != nil || !isMount {
 		return nil, status.Error(codes.NotFound,
 			fmt.Sprintf("Volume[%s] does not exist on the %s", volumeId, volumePath))
 	}

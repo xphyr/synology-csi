@@ -21,3 +21,4 @@ The following is a list of tasks to bring the Synology CSI driver up to date.
   - [ ] ensure gofmt is applied as part of the build process/ci 
 - [x] apply `go-staticcheck` across all files and address issues.
 - [x] Bump to modern version of go compiler (1.24)
+- [ ] Remove depricated function calls in k8s.io/mount-utils
