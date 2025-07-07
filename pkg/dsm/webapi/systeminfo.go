@@ -42,7 +42,7 @@ func (dsm *DSM) DsmInfoGet() (*DsmInfo, error) {
 
 	dsmInfo, ok := resp.Data.(*DsmInfo)
 	if !ok {
-		return nil, fmt.Errorf("Failed to assert response to %T", &DsmInfo{})
+		return nil, fmt.Errorf("failed to assert response to %T", &DsmInfo{})
 	}
 
 	return dsmInfo, nil
@@ -61,7 +61,7 @@ func (dsm *DSM) DsmSystemInfoGet() (*DsmSysInfo, error) {
 
 	dsmInfo, ok := resp.Data.(*DsmSysInfo)
 	if !ok {
-		return nil, fmt.Errorf("Failed to assert response to %T", &DsmSysInfo{})
+		return nil, fmt.Errorf("failed to assert response to %T", &DsmSysInfo{})
 	}
 
 	return dsmInfo, nil

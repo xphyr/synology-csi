@@ -48,7 +48,7 @@ func (dsm *DSM) sendRequest(data string, apiTemplate interface{}, params url.Val
 	if err != nil && (resp.ErrorCode == 105 || resp.ErrorCode == 106 || resp.ErrorCode == 119) { // 105: WEBAPI_ERR_NO_PERMISSION, 106: session timeout, 119: WEBAPI_ERR_SID_NOT_FOUND
 		// Re-login
 		if err := dsm.Login(); err != nil {
-			return Response{}, fmt.Errorf("Failed to re-login to DSM: [%s]. err: %v", dsm.Ip, err)
+			return Response{}, fmt.Errorf("failed to re-login to DSM: [%s]. err: %v", dsm.Ip, err)
 		}
 		log.Info("Re-login succeeded.")
 		return dsm.sendRequestWithoutConnectionCheck(data, apiTemplate, params, cgiPath)
@@ -93,6 +93,10 @@ func (dsm *DSM) sendRequestWithoutConnectionCheck(data string, apiTemplate inter
 		req, err = http.NewRequest("GET", baseUrl.String(), nil)
 	}
 
+	if err != nil {
+		return Response{}, err
+	}
+
 	if dsm.Sid != "" {
 		cookie := http.Cookie{Name: "id", Value: dsm.Sid}
 		req.AddCookie(&cookie)
@@ -116,7 +120,7 @@ func (dsm *DSM) sendRequestWithoutConnectionCheck(data string, apiTemplate inter
 	}
 
 	if resp.StatusCode != 200 && resp.StatusCode != 302 {
-		return Response{}, fmt.Errorf("Bad response status code: %d", resp.StatusCode)
+		return Response{}, fmt.Errorf("bad response status code: %d", resp.StatusCode)
 	}
 
 	// Strip data json data from response
@@ -186,7 +190,7 @@ func (dsm *DSM) Login() error {
 
 	loginResp, ok := resp.Data.(*LoginResp)
 	if !ok {
-		return fmt.Errorf("Failed to assert response to %T", &LoginResp{})
+		return fmt.Errorf("failed to assert response to %T", &LoginResp{})
 	}
 	dsm.Sid = loginResp.Sid
 

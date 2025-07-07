@@ -132,7 +132,7 @@ func errCodeMapping(errCode int, oriErr error) error {
 	}
 
 	if errCode > 18990000 {
-		return utils.IscsiDefaultError{errCode}
+		return utils.IscsiDefaultError{ErrCode: errCode}
 	}
 	return oriErr
 }
@@ -156,7 +156,7 @@ func (dsm *DSM) LunList() ([]LunInfo, error) {
 
 	lunInfos, ok := resp.Data.(*LunInfos)
 	if !ok {
-		return nil, fmt.Errorf("Failed to assert response to %T", &LunInfos{})
+		return nil, fmt.Errorf("failed to assert response to %T", &LunInfos{})
 	}
 	return lunInfos.Luns, nil
 }
@@ -190,7 +190,7 @@ func (dsm *DSM) LunCreate(spec LunCreateSpec) (string, error) {
 
 	lunResp, ok := resp.Data.(*LunCreateResp)
 	if !ok {
-		return "", fmt.Errorf("Failed to assert response to %T", &LunCreateResp{})
+		return "", fmt.Errorf("failed to assert response to %T", &LunCreateResp{})
 	}
 
 	return lunResp.Uuid, nil
@@ -253,7 +253,7 @@ func (dsm *DSM) LunClone(spec LunCloneSpec) (string, error) {
 
 	cloneLunResp, ok := resp.Data.(*LunCloneResp)
 	if !ok {
-		return "", fmt.Errorf("Failed to assert response to %T", &LunCloneResp{})
+		return "", fmt.Errorf("failed to assert response to %T", &LunCloneResp{})
 	}
 
 	return cloneLunResp.Uuid, nil
@@ -277,7 +277,7 @@ func (dsm *DSM) TargetList() ([]TargetInfo, error) {
 
 	trgInfos, ok := resp.Data.(*TargetInfos)
 	if !ok {
-		return nil, fmt.Errorf("Failed to assert response to %T", &TargetInfos{})
+		return nil, fmt.Errorf("failed to assert response to %T", &TargetInfos{})
 	}
 	return trgInfos.Targets, nil
 }
@@ -340,7 +340,7 @@ func (dsm *DSM) TargetCreate(spec TargetCreateSpec) (string, error) {
 
 	trgResp, ok := resp.Data.(*TrgCreateResp)
 	if !ok {
-		return "", fmt.Errorf("Failed to assert response to %T", &TrgCreateResp{})
+		return "", fmt.Errorf("failed to assert response to %T", &TrgCreateResp{})
 	}
 
 	return strconv.Itoa(trgResp.TargetId), nil
@@ -416,7 +416,7 @@ func (dsm *DSM) SnapshotCreate(spec SnapshotCreateSpec) (string, error) {
 
 	snapshotResp, ok := resp.Data.(*SnapshotCreateResp)
 	if !ok {
-		return "", fmt.Errorf("Failed to assert response to %T", &SnapshotCreateResp{})
+		return "", fmt.Errorf("failed to assert response to %T", &SnapshotCreateResp{})
 	}
 
 	return snapshotResp.Uuid, nil
@@ -474,7 +474,7 @@ func (dsm *DSM) SnapshotList(lunUuid string) ([]SnapshotInfo, error) {
 
 	infos, ok := resp.Data.(*Infos)
 	if !ok {
-		return nil, fmt.Errorf("Failed to assert response to %T", &Infos{})
+		return nil, fmt.Errorf("failed to assert response to %T", &Infos{})
 	}
 
 	return infos.Snapshots, nil
@@ -500,7 +500,7 @@ func (dsm *DSM) SnapshotClone(spec SnapshotCloneSpec) (string, error) {
 
 	snapshotCloneResp, ok := resp.Data.(*SnapshotCloneResp)
 	if !ok {
-		return "", fmt.Errorf("Failed to assert response to %T", &SnapshotCloneResp{})
+		return "", fmt.Errorf("failed to assert response to %T", &SnapshotCloneResp{})
 	}
 
 	return snapshotCloneResp.Uuid, nil

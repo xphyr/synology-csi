@@ -103,7 +103,7 @@ func shareErrCodeMapping(errCode int, oriErr error) error {
 	}
 
 	if errCode >= 3300 {
-		return utils.ShareDefaultError{errCode}
+		return utils.ShareDefaultError{ErrCode: errCode}
 	}
 	return oriErr
 }
@@ -142,7 +142,7 @@ func (dsm *DSM) ShareList() ([]ShareInfo, error) {
 
 	infos, ok := resp.Data.(*ShareInfos)
 	if !ok {
-		return nil, fmt.Errorf("Failed to assert response to %T", &ShareInfos{})
+		return nil, fmt.Errorf("failed to assert response to %T", &ShareInfos{})
 	}
 
 	return infos.Shares, nil
@@ -176,7 +176,7 @@ func (dsm *DSM) ShareClone(spec ShareCloneSpec) (string, error) {
 	// if clone from snapshot, the NameOrg must be the parent of the snapshot, or the webapi will return 3300
 	// if the snapshot doesn't exist, it will return 3300 too.
 	if spec.ShareInfo.NameOrg == "" {
-		return "", fmt.Errorf("Clone failed. The source name can't be empty.")
+		return "", fmt.Errorf("clone failed. The source name can't be empty")
 	}
 
 	if spec.Snapshot != "" {
@@ -200,7 +200,7 @@ func (dsm *DSM) ShareClone(spec ShareCloneSpec) (string, error) {
 
 	shareResp, ok := resp.Data.(*ShareCreateResp)
 	if !ok {
-		return "", fmt.Errorf("Failed to assert response to %T", &ShareCreateResp{})
+		return "", fmt.Errorf("failed to assert response to %T", &ShareCreateResp{})
 	}
 
 	return shareResp.Name, nil
@@ -301,7 +301,7 @@ func (dsm *DSM) ShareSnapshotList(name string) ([]ShareSnapshotInfo, error) {
 
 	infos, ok := resp.Data.(*Infos)
 	if !ok {
-		return nil, fmt.Errorf("Failed to assert response to %T", &Infos{})
+		return nil, fmt.Errorf("failed to assert response to %T", &Infos{})
 	}
 
 	return infos.Snapshots, nil
@@ -322,7 +322,7 @@ func (dsm *DSM) ShareSnapshotDelete(snapTime string, shareName string) error {
 	}
 
 	if len(objmap) > 0 {
-		return fmt.Errorf("Failed to delete snapshot, API common error. snapshot: %s", snapTime)
+		return fmt.Errorf("failed to delete snapshot, API common error. snapshot: %s", snapTime)
 	}
 
 	return nil
@@ -371,7 +371,7 @@ func (dsm *DSM) SharePermissionList(shareName string, userGroupType string) ([]S
 
 	infos, ok := resp.Data.(*SharePermissions)
 	if !ok {
-		return nil, fmt.Errorf("Failed to assert response to %T", &SharePermissions{})
+		return nil, fmt.Errorf("failed to assert response to %T", &SharePermissions{})
 	}
 
 	return infos.Permissions, nil

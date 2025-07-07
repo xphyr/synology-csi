@@ -4,10 +4,11 @@ package webapi
 
 import (
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"net"
 	"strings"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/SynologyOpenSource/synology-csi/pkg/utils"
 )
@@ -31,12 +32,12 @@ func (dsm *DSM) GetAnotherController() (*DSM, error) {
 
 	netListA, err := dsm.NetworkInterfaceList("node0")
 	if err != nil {
-		return nil, fmt.Errorf("Failed to get DSM network list of controller A. %v", err)
+		return nil, fmt.Errorf("failed to get DSM network list of controller A. %v", err)
 	}
 
 	netListB, err := dsm.NetworkInterfaceList("node1")
 	if err != nil {
-		return nil, fmt.Errorf("Failed to get DSM network list of controller B. %v", err)
+		return nil, fmt.Errorf("failed to get DSM network list of controller B. %v", err)
 	}
 
 	ips, err := utils.LookupIPv4(dsm.Ip) // because dsm.Ip may be a domain
@@ -78,7 +79,7 @@ func (dsm *DSM) GetAnotherController() (*DSM, error) {
 		}
 	}
 
-	return nil, fmt.Errorf("Failed to get reachable network of another controller.")
+	return nil, fmt.Errorf("failed to get reachable network of another controller")
 }
 
 func CheckIpReachable(ip string, port int) bool {
@@ -87,9 +88,5 @@ func CheckIpReachable(ip string, port int) bool {
 
 	_, err := net.DialTimeout("tcp", fmt.Sprintf("%s:%d", ip, port), timeOut)
 
-	if err != nil {
-		return false
-	}
-
-	return true
+	return err == nil
 }

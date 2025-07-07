@@ -19,3 +19,4 @@ The following is a list of tasks to bring the Synology CSI driver up to date.
 - [ ] Add configuration to allow non-admin access to RecycleBin
 - [x] `gofmt` to apply proper formatting and simplification to the entire codebase
   - [ ] ensure gofmt is applied as part of the build process/ci 
+- [x] apply `go-staticcheck` across all files and address issues.
