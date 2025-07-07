@@ -17,5 +17,5 @@ The following is a list of tasks to bring the Synology CSI driver up to date.
 - [ ] Update testing framework
 - [ ] Add configuration to disable RecycleBin on NFS/SMB shares
 - [ ] Add configuration to allow non-admin access to RecycleBin
-- [ ] `gofmt` to apply proper formatting and simplification to the entire codebase
+- [x] `gofmt` to apply proper formatting and simplification to the entire codebase
   - [ ] ensure gofmt is applied as part of the build process/ci 

@@ -736,7 +736,7 @@ func (ns *nodeServer) NodeGetVolumeStats(ctx context.Context, req *csi.NodeGetVo
 	if k8sVolume.Protocol == utils.ProtocolSmb || k8sVolume.Protocol == utils.ProtocolNfs {
 		return &csi.NodeGetVolumeStatsResponse{
 			Usage: []*csi.VolumeUsage{
-				&csi.VolumeUsage{
+				{
 					Total: k8sVolume.SizeInBytes,
 					Unit:  csi.VolumeUsage_BYTES,
 				},
