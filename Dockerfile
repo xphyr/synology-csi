@@ -8,6 +8,8 @@ RUN apk add --no-cache e2fsprogs e2fsprogs-extra xfsprogs xfsprogs-extra blkid u
 # Create symbolic link for chroot.sh
 WORKDIR /
 
+RUN mkdir /host
+
 # Copy and run CSI driver
 COPY bin/synology-csi-driver synology-csi-driver
 

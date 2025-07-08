@@ -4,7 +4,6 @@ package hostexec
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -41,7 +40,7 @@ func New(cmdMap map[string]string, chrootDir string) (Executor, error) {
 	if chrootDir != "" {
 		fileinfo, err := os.Stat(chrootDir)
 		if err != nil || !fileinfo.IsDir() {
-			return nil, errors.New("chroot directory does not exist or is not a directory")
+			return nil, fmt.Errorf("chroot directory %s does not exist or is not a directory", chrootDir)
 		}
 	}
 
