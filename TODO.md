@@ -6,8 +6,10 @@ The following is a list of tasks to bring the Synology CSI driver up to date.
 - [x] Update logic to handle PV requests that do not meet the minimum allocatable size and bump it up to 1Gb.
 - [ ] Merge existing PR Requests from upstream project
    - [x] [PR85 - Predefined tool paths](https://github.com/SynologyOpenSource/synology-csi/pull/85)
+       - NOTE: Change was pulled in but set to work in old mode. Must override chroot if no chroot is required
    - [x] [PR79 - Add basic CI Pipeline](https://github.com/SynologyOpenSource/synology-csi/pull/79)
      - [ ] Support Multi-arch (x86_64 and ARM) containers
+       - [ ] Use [GoReleaser](https://goreleaser.com/) to handle multiarch builds
      - [ ] Update docs and deployment files to use new ghcr.io repo
    - [X] [PR75 - Support for devAttribs](https://github.com/SynologyOpenSource/synology-csi/pull/75)
    - [X] [PR48 - return extra lun info and allow direct_io_pattern](https://github.com/SynologyOpenSource/synology-csi/pull/48)
@@ -21,4 +23,5 @@ The following is a list of tasks to bring the Synology CSI driver up to date.
   - [ ] ensure gofmt is applied as part of the build process/ci 
 - [x] apply `go-staticcheck` across all files and address issues.
 - [x] Bump to modern version of go compiler (1.24)
-- [ ] Remove depricated function calls in k8s.io/mount-utils
+- [ ] Remove deprecated function calls in k8s.io/mount-utils
+- [ ] Support Windows

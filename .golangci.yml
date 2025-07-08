@@ -1,0 +1,11 @@
+version: "2"
+linters:
+  # we will work up to the standard set of linters for now
+  # default: standard
+  default: none
+  enable:
+    # - errcheck
+    - govet
+    - ineffassign
+    - staticcheck
+    - unused

@@ -253,6 +253,12 @@ If you want to use images you built locally for installation, edit all files und
 - To build a docker image, run `./scripts/deploy.sh build`.
  Afterwards, run `docker images` to check the newly created image.
 
+#### Using GoReleaser
+
+This project uses [GoReleaser](https://goreleaser.com/) to build the multi-arch container files. 
+
+To test: `goreleaser release --snapshot --clean`
+
 ### Installation
 
 - To install all pods of the CSI driver, run `./scripts/deploy.sh install --all`
