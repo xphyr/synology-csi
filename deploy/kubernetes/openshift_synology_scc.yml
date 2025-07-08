@@ -1,0 +1,33 @@
+apiVersion: security.openshift.io/v1
+kind: SecurityContextConstraints
+allowHostPorts: false
+priority: null
+requiredDropCapabilities: []
+allowPrivilegedContainer: true
+runAsUser:
+  type: RunAsAny
+users:
+  - 'system:serviceaccount:synology-csi:csi-controller-sa'
+  - 'system:serviceaccount:synology-csi:csi-node-sa'
+  - 'system:serviceaccount:synology-csi:csi-snapshotter-sa'
+allowHostDirVolumePlugin: true
+allowHostIPC: false
+seLinuxContext:
+  type: RunAsAny
+readOnlyRootFilesystem: false
+metadata:
+  name: synology-csi-scc
+fsGroup:
+  type: RunAsAny
+groups: []
+defaultAddCapabilities: []
+supplementalGroups:
+  type: RunAsAny
+volumes:
+  - '*'
+allowHostPID: false
+allowHostNetwork: true
+allowPrivilegeEscalation: true
+allowedCapabilities:
+  - SYS_ADMIN
+
