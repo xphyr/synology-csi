@@ -144,7 +144,7 @@ spec:
             capabilities:
               add: ["SYS_ADMIN"]
             allowPrivilegeEscalation: true
-          image: ghcr.io/xphyr/synology-csi:1.3.0
+          image: ghcr.io/xphyr/synology-csi:1.3.1
           args:
             - --nodeid=NotUsed
             - --endpoint=$(CSI_ENDPOINT)

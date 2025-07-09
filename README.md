@@ -10,7 +10,7 @@ There are over 134 forks of the upstream driver, as well as 8 PRs and over 40 Is
 Driver Name: csi.san.synology.com
 | Driver Version                                                                   | Image                                                                 | Supported K8s Version |
 | -------------------------------------------------------------------------------- | --------------------------------------------------------------------- | --------------------- |
-| [v1.3.0](https://github.com/xphyr/synology-csi/tree/v1.3.0) | [synology-csi:v1.3.0](https://github.com/xphyr/synology-csi/pkgs/container/synology-csi) | 1.20+           |
+| [v1.3.1](https://github.com/xphyr/synology-csi/tree/v1.3.1) | [synology-csi:1.3.1](https://github.com/xphyr/synology-csi/pkgs/container/synology-csi) | 1.20+           |
 
 
 
@@ -58,13 +58,18 @@ The Synology CSI driver supports:
             `./scripts/deploy.sh install --all`
         - *basic*:
             `./scripts/deploy.sh install --basic`
-
+        - *openshift*:
+            `./scripts/deploy.sh install --openshift`
+        - *talos*:
+            `./scripts/deploy.sh install --talos`
         Running the bash script will:
         - Create a namespace named "`synology-csi`". This is where the driver will be installed.
         - Create a secret named "`client-info-secret`" using the credentials from the client-info.yml you configured in the previous step.
         - Build a local image and deploy the CSI driver.
         - Create a **default** storage class named "`synology-iscsi-storage`" that uses the "`Retain`" policy.
         - Create a volume snapshot class named "`synology-snapshotclass`" that uses the "`Delete`" policy. (*Full* deployment only)
+        - *optionally* install SecurityContextConstraint for OpenShift cluster
+        - *optionally* patch the node daemonset to support 'talos' kubernetes clusters
     * **HELM** (Local Development)
         1. `kubectl create ns synology-csi`
         2. `kubectl create secret -n synology-csi generic client-info-secret --from-file=./config/client-info.yml`

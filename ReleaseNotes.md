@@ -14,5 +14,7 @@ Initial test release of version 1.3.0 which includes the following changes:
  - Merged [PR48 - return extra lun info and allow direct_io_pattern](https://github.com/SynologyOpenSource/synology-csi/pull/48) from upstream
  - Partially removed deprecated function calls in k8s.io/mount-utils from code
 
-# [v1.3.1] - in progress not released
+# [v1.3.1](https://github.com/xphyr/synology-csi/releases/tag/v1.3.1)
 - updated golang modules to remove known critical and high vulnerabilities
+- updated install script to support installing on OpenShift clusters
+- updated install script to support installing on Talos clusters

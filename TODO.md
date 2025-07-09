@@ -20,9 +20,13 @@ The following is a list of tasks to bring the Synology CSI driver up to date.
 - [x] Bump to modern version of go compiler (1.24)
 - [ ] Add support for OpenShift SCC profiles
   - [x] Add SCC definition file to repo
-  - [ ] Update deployment documentation
-  - [ ] Update deployment scripts
+  - [x] Update deployment documentation
+  - [x] Update deployment scripts
   - [ ] Update Helm Chart
+- [x] Update support for Talos Clusters
+  - [x] Add pod security labels to namespace 
+  - [x] Update deployment documentation
+  - [x] Update deployment scripts
 - [ ] Add configuration to disable RecycleBin on NFS/SMB shares
 - [ ] Add configuration to allow non-admin access to RecycleBin
 - [ ] Override NFS mount Permissions for multi-homed servers
