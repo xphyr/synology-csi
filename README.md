@@ -1,16 +1,18 @@
 # Synology CSI Driver for Kubernetes
 
-The NOT official [Container Storage Interface](https://github.com/container-storage-interface) driver for Synology NAS.
+The **NOT** official [Container Storage Interface](https://github.com/container-storage-interface) driver for Synology NAS.
 
 The [Official Synology CSI Driver](https://github.com/xphyr/synology-csi), has not been updated, or seen any activity in about 1 year. I am going to try and pull together all the existing PRs that make sense into this code base, and then start to address the items on my [TODO](./TODO.md) list. I am not in any way affiliated with Synology, however I use the Synology CSI driver in my home lab. 
 
-There are over 134 forks of the upstream driver, as well as 8 PRs and over 40 Issues that have been filed but, have gone unanswered. I am hoping that maybe a few of us can come together and create a "community" version of this driver that is updated more frequently and has additional features added to it over time. Please feel free to reach out via issue or PR if you would like to contribute and assist with this little project.
+There are over 134 forks of the upstream driver, as well as 8 PRs and over 40 Issues that have been filed but, have gone unanswered. I am hoping that maybe a few of us can come together and create a "community" version of this driver that is updated more frequently and has additional features added to it over time. 
+
+Please feel free to reach out and create an [Issue](https://github.com/xphyr/synology-csi/issues) or a [Pull request](https://github.com/xphyr/synology-csi/pulls) if you would like to contribute and assist with this little project.
 
 ### Container Images & Kubernetes Compatibility
 Driver Name: csi.san.synology.com
 | Driver Version                                                                   | Image                                                                 | Supported K8s Version |
 | -------------------------------------------------------------------------------- | --------------------------------------------------------------------- | --------------------- |
-| [v1.3.1](https://github.com/xphyr/synology-csi/tree/v1.3.1) | [synology-csi:1.3.1](https://github.com/xphyr/synology-csi/pkgs/container/synology-csi) | 1.20+           |
+| [v1.3.2](https://github.com/xphyr/synology-csi/tree/v1.3.2) | [synology-csi:1.3.2](https://github.com/xphyr/synology-csi/pkgs/container/synology-csi) | 1.20+           |
 
 
 
