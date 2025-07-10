@@ -26,6 +26,8 @@ type CreateK8sVolumeSpec struct {
 	Protocol         string
 	NfsVersion       string
 	DevAttribs       string
+	// EnableRecycleBin bool
+	// RecycleBinAdminOnly bool
 }
 
 type K8sVolumeRespSpec struct {
