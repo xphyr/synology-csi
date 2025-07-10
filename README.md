@@ -12,7 +12,7 @@ Please feel free to reach out and create an [Issue](https://github.com/xphyr/syn
 Driver Name: csi.san.synology.com
 | Driver Version                                                                   | Image                                                                 | Supported K8s Version |
 | -------------------------------------------------------------------------------- | --------------------------------------------------------------------- | --------------------- |
-| [v1.3.1](https://github.com/xphyr/synology-csi/tree/v1.3.1) | [synology-csi:1.3.1](https://github.com/xphyr/synology-csi/pkgs/container/synology-csi) | 1.20+           |
+| [v1.3.2](https://github.com/xphyr/synology-csi/tree/v1.3.2) | [synology-csi:1.3.2](https://github.com/xphyr/synology-csi/pkgs/container/synology-csi) | 1.20+           |
 
 
 
