@@ -22,3 +22,8 @@ Initial test release of version 1.3.0 which includes the following changes:
 # [v1.3.2](https://github.com/xphyr/synology-csi/releases/tag/v1.3.2)
 - addressed issues with snapshotter not properly creating snapshots
   - **NOTE**: You will need to apply the new `deploy\kubernetes\v1.20\snapshotter\snapshotter.yaml` file to your cluster as this updates the external-csi snapshotter application as well as the ClusterRole required to make snapshotting work on clusters based on K8s V1.20 and higher
+
+# [v1.4.0]
+This release introduces potentially **BREAKING CHANGES** If you are converting from the Upstream synology/synology-csi driver or a prior version of xphyr/synology-csi driver please read the following.
+  - In order to start code cleanup, I have remvoed code that is duplicated by go built in packages such as `strconv.ParseBool()`. This means that use of the term "yes" in any configuration file is NO LONGER SUPPORTED. If your storageClass definition contains the word "yes" or "no" for settings, you need to update to "true" or "false". This also aligns with kubernetes defaults for boolean values
+  - By default the Synology RecycleBin is DISABLED for NFS and SMB shares. If you want to use the #RecycleBin in your NFS or SMB shares, you will need to add 

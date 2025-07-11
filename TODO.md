@@ -39,3 +39,4 @@ The following is a list of tasks to bring the Synology CSI driver up to date.
 - [x] Fix Snapshotter functionality
   - CSI Snapshotter is based on version 4.2.1 (released in August of 2021) this needs to be updated to v6+
   - clusterRole needs to add additional privileges to work properly
+- [ ] Add support for the [csi-testing framework](https://github.com/kubernetes-csi/csi-test/tree/master)

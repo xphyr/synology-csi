@@ -288,10 +288,16 @@ var cmdShareSnapshotCreate = &cobra.Command{
 			dsm.Logout()
 		}()
 
+		isLocked, err := strconv.ParseBool(args[2])
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
 		spec := webapi.ShareSnapshotCreateSpec{
 			ShareName: args[0],
 			Desc:      args[1],
-			IsLocked:  utils.StringToBoolean(args[2]),
+			IsLocked:  isLocked,
 		}
 
 		fmt.Printf("spec = %#v\n", spec)

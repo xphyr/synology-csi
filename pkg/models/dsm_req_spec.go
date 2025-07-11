@@ -10,24 +10,24 @@ import (
 )
 
 type CreateK8sVolumeSpec struct {
-	DsmIp            string
-	K8sVolumeName    string
-	LunName          string
-	LunDescription   string
-	ShareName        string
-	Location         string
-	Size             int64
-	Type             string
-	ThinProvisioning bool
-	TargetName       string
-	MultipleSession  bool
-	SourceSnapshotId string
-	SourceVolumeId   string
-	Protocol         string
-	NfsVersion       string
-	DevAttribs       string
-	// EnableRecycleBin bool
-	// RecycleBinAdminOnly bool
+	DsmIp               string
+	K8sVolumeName       string
+	LunName             string
+	LunDescription      string
+	ShareName           string
+	Location            string
+	Size                int64
+	Type                string
+	ThinProvisioning    bool
+	TargetName          string
+	MultipleSession     bool
+	SourceSnapshotId    string
+	SourceVolumeId      string
+	Protocol            string
+	NfsVersion          string
+	DevAttribs          string
+	EnableRecycleBin    bool
+	RecycleBinAdminOnly bool
 }
 
 type K8sVolumeRespSpec struct {

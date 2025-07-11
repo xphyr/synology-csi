@@ -136,7 +136,10 @@ func (cs *controllerServer) CreateVolume(ctx context.Context, req *csi.CreateVol
 
 	isThin := true
 	if params["thin_provisioning"] != "" {
-		isThin = utils.StringToBoolean(params["thin_provisioning"])
+		isThin, err = strconv.ParseBool(params["thin_provisioning"])
+		if err != nil {
+			return nil, status.Errorf(codes.InvalidArgument, "unsupported thin_provisioning setting: %s", params["thin_provisioning"])
+		}
 	}
 
 	protocol := strings.ToLower(params["protocol"])
@@ -159,6 +162,25 @@ func (cs *controllerServer) CreateVolume(ctx context.Context, req *csi.CreateVol
 
 	devAttribs := params["devAttribs"]
 
+	// capture recyclebin support for nfs/smb shares
+	// by default we are DISABLING the recyclebin
+	// recyclebin does not fit in the general storage model of Kubernetes
+	enableRecycleBin := false
+	if params["enableRecycleBin"] != "" {
+		enableRecycleBin, err = strconv.ParseBool(params["enableRecycleBin"])
+		if err != nil {
+			return nil, status.Errorf(codes.InvalidArgument, "unsupported recyclebin setting: %s", params["enableRecycleBin"])
+		}
+	}
+	recycleBinAdminOnly := false
+	if params["recycleBinAdminOnly"] != "" && enableRecycleBin {
+		// the recyclebin must be enabled for this option to be valid
+		recycleBinAdminOnly, err = strconv.ParseBool(params["recycleBinAdminOnly"])
+		if err != nil {
+			return nil, status.Errorf(codes.InvalidArgument, "unsupported recyclebinadminonly setting: %s", params["recycleBinAdminOnly"])
+		}
+	}
+
 	lunDescription := ""
 	if _, ok := params["csi.storage.k8s.io/pvc/name"]; ok {
 		// if the /pvc/name is present, the namespace is present too
@@ -174,22 +196,24 @@ func (cs *controllerServer) CreateVolume(ctx context.Context, req *csi.CreateVol
 	}
 
 	spec := &models.CreateK8sVolumeSpec{
-		DsmIp:            params["dsm"],
-		K8sVolumeName:    volName,
-		LunName:          models.GenLunName(volName),
-		LunDescription:   lunDescription,
-		ShareName:        models.GenShareName(volName),
-		Location:         params["location"],
-		Size:             sizeInByte,
-		Type:             params["type"],
-		ThinProvisioning: isThin,
-		TargetName:       fmt.Sprintf("%s-%s", models.TargetPrefix, volName),
-		MultipleSession:  multiSession,
-		SourceSnapshotId: srcSnapshotId,
-		SourceVolumeId:   srcVolumeId,
-		Protocol:         protocol,
-		NfsVersion:       nfsVer,
-		DevAttribs:       devAttribs,
+		DsmIp:               params["dsm"],
+		K8sVolumeName:       volName,
+		LunName:             models.GenLunName(volName),
+		LunDescription:      lunDescription,
+		ShareName:           models.GenShareName(volName),
+		Location:            params["location"],
+		Size:                sizeInByte,
+		Type:                params["type"],
+		ThinProvisioning:    isThin,
+		TargetName:          fmt.Sprintf("%s-%s", models.TargetPrefix, volName),
+		MultipleSession:     multiSession,
+		SourceSnapshotId:    srcSnapshotId,
+		SourceVolumeId:      srcVolumeId,
+		Protocol:            protocol,
+		NfsVersion:          nfsVer,
+		DevAttribs:          devAttribs,
+		EnableRecycleBin:    enableRecycleBin,
+		RecycleBinAdminOnly: recycleBinAdminOnly,
 	}
 
 	// idempotency
@@ -401,18 +425,24 @@ func (cs *controllerServer) CreateSnapshot(ctx context.Context, req *csi.CreateS
 		}, nil
 	}
 
+	isLocked, err := strconv.ParseBool(params["is_locked"])
+	if err != nil {
+		log.Errorf("failed to parse the is_locked parameter. %s, is not a valid option", params["is_locked"])
+		return nil, err
+	}
+
 	// not exist, going to create a new snapshot
 	spec := &models.CreateK8sVolumeSnapshotSpec{
 		K8sVolumeId:  srcVolId,
 		SnapshotName: snapshotName,
 		Description:  params["description"],
 		TakenBy:      models.K8sCsiName,
-		IsLocked:     utils.StringToBoolean(params["is_locked"]),
+		IsLocked:     isLocked,
 	}
 
 	snapshot, err := cs.dsmService.CreateSnapshot(spec)
 	if err != nil {
-		log.Errorf("Failed to CreateSnapshot, snapshotName: %s, srcVolId: %s, err: %v", snapshotName, srcVolId, err)
+		log.Errorf("failed to CreateSnapshot, snapshotName: %s, srcVolId: %s, err: %v", snapshotName, srcVolId, err)
 		return nil, err
 	}
 
