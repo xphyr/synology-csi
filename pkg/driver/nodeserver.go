@@ -132,31 +132,31 @@ func createTargetMountPathNFS(mounter mount.Interface, mountPath string, mountPe
 }
 
 func createTargetMountPath(mounter mount.Interface, mountPath string, isBlock bool) (bool, error) {
-	notMount, err := mount.IsNotMountPoint(mounter, mountPath)
+	isMount, err := mounter.IsMountPoint(mountPath)
 	if err != nil {
 		if os.IsNotExist(err) {
 			if isBlock {
 				pathFile, err := os.OpenFile(mountPath, os.O_CREATE|os.O_RDWR, 0750)
 				if err != nil {
 					log.Errorf("Failed to create mountPath:%s with error: %v", mountPath, err)
-					return notMount, err
+					return isMount, err
 				}
 				if err = pathFile.Close(); err != nil {
 					log.Errorf("Failed to close mountPath:%s with error: %v", mountPath, err)
-					return notMount, err
+					return isMount, err
 				}
 			} else {
 				err = os.MkdirAll(mountPath, 0750)
 				if err != nil {
-					return notMount, err
+					return isMount, err
 				}
 			}
-			notMount = true
+			isMount = true
 		} else {
 			return false, err
 		}
 	}
-	return notMount, nil
+	return isMount, nil
 }
 
 func (ns *nodeServer) getPortals(dsmIp string) []string {

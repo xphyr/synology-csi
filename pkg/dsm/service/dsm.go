@@ -180,7 +180,7 @@ func (service *DsmService) createMappingTarget(dsm *webapi.DSM, spec *models.Cre
 	targetId, err := dsm.TargetCreate(targetSpec)
 
 	if err != nil && !errors.Is(err, utils.AlreadyExistError("")) {
-		return webapi.TargetInfo{}, status.Errorf(codes.Internal, "%s", fmt.Sprintf("Failed to create target with spec: %v, err: %v", targetSpec, err))
+		return webapi.TargetInfo{}, status.Errorf(codes.Internal, "%s", fmt.Sprintf("Failed to create target with spec: %v, err: %v, targetID: %v", targetSpec, err, targetId))
 	}
 
 	targetInfo, err := dsm.TargetGet(targetSpec.Name)

@@ -46,11 +46,6 @@ func BytesToMBCeil(size int64) int64 {
 	return (size + UNIT_MB - 1) / UNIT_MB
 }
 
-func StringToBoolean(value string) bool {
-	value = strings.ToLower(value)
-	return value == "yes" || value == "true" || value == "1"
-}
-
 func StringToSlice(value string) []string {
 	return strings.Fields(value)
 }
