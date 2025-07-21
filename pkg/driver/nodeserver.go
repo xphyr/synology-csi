@@ -35,10 +35,10 @@ import (
 	clientset "k8s.io/client-go/kubernetes"
 	"k8s.io/mount-utils"
 
-	"github.com/SynologyOpenSource/synology-csi/pkg/dsm/webapi"
-	"github.com/SynologyOpenSource/synology-csi/pkg/interfaces"
-	"github.com/SynologyOpenSource/synology-csi/pkg/models"
-	"github.com/SynologyOpenSource/synology-csi/pkg/utils"
+	"github.com/xphyr/synology-csi/pkg/dsm/webapi"
+	"github.com/xphyr/synology-csi/pkg/interfaces"
+	"github.com/xphyr/synology-csi/pkg/models"
+	"github.com/xphyr/synology-csi/pkg/utils"
 )
 
 type nodeServer struct {

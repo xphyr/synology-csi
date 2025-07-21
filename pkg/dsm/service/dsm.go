@@ -12,12 +12,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/SynologyOpenSource/synology-csi/pkg/dsm/common"
-	"github.com/SynologyOpenSource/synology-csi/pkg/dsm/webapi"
-	"github.com/SynologyOpenSource/synology-csi/pkg/models"
-	"github.com/SynologyOpenSource/synology-csi/pkg/utils"
 	"github.com/cenkalti/backoff/v4"
 	log "github.com/sirupsen/logrus"
+	"github.com/xphyr/synology-csi/pkg/dsm/common"
+	"github.com/xphyr/synology-csi/pkg/dsm/webapi"
+	"github.com/xphyr/synology-csi/pkg/models"
+	"github.com/xphyr/synology-csi/pkg/utils"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )

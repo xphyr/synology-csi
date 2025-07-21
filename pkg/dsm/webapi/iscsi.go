@@ -9,9 +9,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/SynologyOpenSource/synology-csi/pkg/logger"
-	"github.com/SynologyOpenSource/synology-csi/pkg/utils"
 	log "github.com/sirupsen/logrus"
+	"github.com/xphyr/synology-csi/pkg/logger"
+	"github.com/xphyr/synology-csi/pkg/utils"
 )
 
 type LunInfo struct {

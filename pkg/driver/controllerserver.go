@@ -31,9 +31,9 @@ import (
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	"github.com/SynologyOpenSource/synology-csi/pkg/interfaces"
-	"github.com/SynologyOpenSource/synology-csi/pkg/models"
-	"github.com/SynologyOpenSource/synology-csi/pkg/utils"
+	"github.com/xphyr/synology-csi/pkg/interfaces"
+	"github.com/xphyr/synology-csi/pkg/models"
+	"github.com/xphyr/synology-csi/pkg/utils"
 )
 
 type controllerServer struct {

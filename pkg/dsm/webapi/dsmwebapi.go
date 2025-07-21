@@ -13,8 +13,8 @@ import (
 	"net/url"
 	"regexp"
 
-	"github.com/SynologyOpenSource/synology-csi/pkg/logger"
 	log "github.com/sirupsen/logrus"
+	"github.com/xphyr/synology-csi/pkg/logger"
 )
 
 type DSM struct {

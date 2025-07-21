@@ -5,8 +5,8 @@ package models
 import (
 	"fmt"
 
-	"github.com/SynologyOpenSource/synology-csi/pkg/dsm/webapi"
 	"github.com/container-storage-interface/spec/lib/go/csi"
+	"github.com/xphyr/synology-csi/pkg/dsm/webapi"
 )
 
 type CreateK8sVolumeSpec struct {

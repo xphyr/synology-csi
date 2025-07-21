@@ -7,9 +7,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/SynologyOpenSource/synology-csi/pkg/dsm/common"
-	"github.com/SynologyOpenSource/synology-csi/pkg/dsm/webapi"
 	"github.com/spf13/cobra"
+	"github.com/xphyr/synology-csi/pkg/dsm/common"
+	"github.com/xphyr/synology-csi/pkg/dsm/webapi"
 )
 
 var https = false

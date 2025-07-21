@@ -1,4 +1,4 @@
-#  Copyright 2021 Synology Inc.
+# Copyright 2021 Synology Inc.
 
 REGISTRY_NAME=xphyr
 IMAGE_NAME=synology-csi
@@ -13,13 +13,32 @@ GOARM?=""
 BUILD_ENV=CGO_ENABLED=0 GOOS=linux GOARCH=$(GOARCH) GOARM=$(GOARM)
 BUILD_FLAGS="-s -w -extldflags \"-static\""
 
-.PHONY: all clean synology-csi-driver synocli test docker-build
+.PHONY: all clean synology-csi-driver synocli test docker-build docker-build-multiarch vet lint fmt release goreleaser-docker
 
-all: synology-csi-driver
+all: vet release
 
-synology-csi-driver:
-	@mkdir -p bin
-	$(BUILD_ENV) go build -v -ldflags $(BUILD_FLAGS) -o ./bin/synology-csi-driver ./
+# Format all Go files
+fmt:
+	go fmt ./...
+
+# Run go fmt, go vet, and golangci-lint (requires golangci-lint to be installed)
+vet:
+	$(MAKE) fmt
+	go vet ./...
+	golangci-lint run --timeout=5m
+
+# Run only golangci-lint
+lint:
+	golangci-lint run --timeout=5m
+
+release:
+	goreleaser release --clean --skip-publish
+
+# Build and publish docker images using GoReleaser
+# Requires a properly configured .goreleaser.yaml
+
+goreleaser-docker:
+	goreleaser release --clean --skip-publish --skip-sign --rm-dist
 
 docker-build:
 	docker build -f Dockerfile -t $(IMAGE_TAG) .
@@ -34,6 +53,7 @@ synocli:
 test:
 	go clean -testcache
 	go test -v ./test/...
+
 clean:
 	-rm -rf ./bin
 

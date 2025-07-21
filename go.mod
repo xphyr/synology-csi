@@ -1,4 +1,4 @@
-module github.com/SynologyOpenSource/synology-csi
+module github.com/xphyr/synology-csi
 
 go 1.24.0
 

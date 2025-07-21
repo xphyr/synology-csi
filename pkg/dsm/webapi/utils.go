@@ -10,7 +10,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/SynologyOpenSource/synology-csi/pkg/utils"
+	"github.com/xphyr/synology-csi/pkg/utils"
 )
 
 func (dsm *DSM) IsUC() bool {

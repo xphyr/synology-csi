@@ -9,9 +9,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/SynologyOpenSource/synology-csi/pkg/dsm/webapi"
-	"github.com/SynologyOpenSource/synology-csi/pkg/utils"
 	"github.com/spf13/cobra"
+	"github.com/xphyr/synology-csi/pkg/dsm/webapi"
+	"github.com/xphyr/synology-csi/pkg/utils"
 
 	"text/tabwriter"
 )

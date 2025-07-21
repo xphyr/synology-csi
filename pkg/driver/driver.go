@@ -17,10 +17,10 @@ limitations under the License.
 package driver
 
 import (
-	"github.com/SynologyOpenSource/synology-csi/pkg/interfaces"
-	"github.com/SynologyOpenSource/synology-csi/pkg/utils"
 	"github.com/container-storage-interface/spec/lib/go/csi"
 	log "github.com/sirupsen/logrus"
+	"github.com/xphyr/synology-csi/pkg/interfaces"
+	"github.com/xphyr/synology-csi/pkg/utils"
 )
 
 const (
