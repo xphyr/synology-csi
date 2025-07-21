@@ -22,3 +22,4 @@ Initial test release of version 1.3.0 which includes the following changes:
 # [v1.3.2](https://github.com/xphyr/synology-csi/releases/tag/v1.3.2)
 - addressed issues with snapshotter not properly creating snapshots
   - **NOTE**: You will need to apply the new `deploy\kubernetes\v1.20\snapshotter\snapshotter.yaml` file to your cluster as this updates the external-csi snapshotter application as well as the ClusterRole required to make snapshotting work on clusters based on K8s V1.20 and higher
+  - All go pkg imports are now pointed to xphyr/synology-csi
