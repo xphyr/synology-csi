@@ -7,10 +7,10 @@ import (
 
 	sanity "github.com/kubernetes-csi/csi-test/v4/pkg/sanity"
 
-	"github.com/SynologyOpenSource/synology-csi/pkg/driver"
-	"github.com/SynologyOpenSource/synology-csi/pkg/dsm/common"
-	"github.com/SynologyOpenSource/synology-csi/pkg/dsm/service"
-	"github.com/SynologyOpenSource/synology-csi/pkg/utils/hostexec"
+	"github.com/xphyr/synology-csi/pkg/driver"
+	"github.com/xphyr/synology-csi/pkg/dsm/common"
+	"github.com/xphyr/synology-csi/pkg/dsm/service"
+	"github.com/xphyr/synology-csi/pkg/utils/hostexec"
 )
 
 const (
