@@ -27,10 +27,9 @@ Initial test release of version 1.3.0 which includes the following changes:
 This release introduces potentially **BREAKING CHANGES** If you are converting from the Upstream synology/synology-csi driver or a prior version of xphyr/synology-csi driver please read the following.
   - All go pkg imports are now pointed to xphyr/synology-csi
   - Support for Kubernetes prior to v1.25 has been dropped. Kubernetes 1.20 is over 5.5 years old, and its EoL was [February of 2022](https://kubernetes.io/releases/patch-releases/)
+     - removed deployment files for kubernetes 1.19 and kubernetes 1.20
   - In order to start code cleanup, I have removed code that is duplicated by go built in packages such as `strconv.ParseBool()`. This means that use of the term "yes" in any configuration file is NO LONGER SUPPORTED. If your storageClass definition contains the word "yes" or "no" for settings, you need to update to "true" or "false". This also aligns with kubernetes defaults for boolean values
-  - By default the Synology RecycleBin is DISABLED for NFS and SMB shares. If you want to use the #RecycleBin in your NFS or SMB shares, you will need to add
-  - added new option for disabling the recycle bin on NFS/SMB shares
+  - By default the Synology RecycleBin is DISABLED for NFS and SMB shares. 
     - **NOTE:** This is a "breaking change". Previous releases enabled the recyclebin by default. This causes issues with many apps in K8s, so going forward all NEW shares will have the recyclebin disabled by default. You can enable the recyclebin by setting `recycleBin: true` in the storageClass definition file.
-    - **NOTE:** This is also "breaking change". Previous releases with the recyclebin enabled only allowed "Administrator" access to the files in the recycleBin. This causes issues with many apps in K8s, so going forward all NEW shares that have the recyclebin enabled will allow anyone access to the recycleBin. You can change this recyclebin by setting `recycleBinAdminOnly: true` in the storageClass definition file.
+    - **NOTE:** This is also "breaking change". Previous releases with the recyclebin enabled an option that only allowed "Administrator" access to the files in the recycleBin. This causes issues with many apps in K8s, so going forward all NEW shares that have the recyclebin enabled will allow anyone access to the recycleBin. You can change this recyclebin by setting `recycleBinAdminOnly: true` in the storageClass definition file.
   - removed the final deprecated function calls from k8s.io/mount-utils from code base
-  - removed deployment files for kubernetes 1.19 and kubernetes 1.20

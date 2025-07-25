@@ -10,9 +10,9 @@ Please feel free to reach out and create an [Issue](https://github.com/xphyr/syn
 
 ### Container Images & Kubernetes Compatibility
 Driver Name: csi.san.synology.com
-| Driver Version                                                                   | Image                                                                 | Supported K8s Version |
-| -------------------------------------------------------------------------------- | --------------------------------------------------------------------- | --------------------- |
-| [v1.4.0](https://github.com/xphyr/synology-csi/tree/v1.4.0) | [synology-csi:1.4.0](https://github.com/xphyr/synology-csi/pkgs/container/synology-csi) | 1.25+           |
+| Driver Version                                              | Image                                                                                   | Supported K8s Version |
+| ----------------------------------------------------------- | --------------------------------------------------------------------------------------- | --------------------- |
+| [v1.4.0](https://github.com/xphyr/synology-csi/tree/v1.4.0) | [synology-csi:1.4.0](https://github.com/xphyr/synology-csi/pkgs/container/synology-csi) | 1.25+                 |
 
 
 
@@ -189,19 +189,21 @@ Create and apply StorageClasses with the properties you want.
 
 2. Configure the StorageClass properties by assigning the parameters in the table. You can also leave blank if you don’t have a preference:
 
-    | Name                                             | Type   | Description                                                                                                                                                        | Default | Supported protocols |
-    | ------------------------------------------------ | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------- | ------------------- |
-    | *dsm*                                            | string | The IPv4 address of your DSM, which must be included in the `client-info.yml` for the CSI driver to log in to DSM                                                  | -       | iSCSI, SMB, NFS     |
-    | *location*                                       | string | The location (/volume1, /volume2, ...) on DSM where the LUN for *PersistentVolume* will be created                                                                 | -       | iSCSI, SMB, NFS     |
-    | *fsType*                                         | string | The formatting file system of the *PersistentVolumes* when you mount them on the pods. This parameter only works with iSCSI. For SMB, the fsType is always ‘cifs‘. | 'ext4'  | iSCSI               |
-    | *protocol*                                       | string | The storage backend protocol. Enter ‘iscsi’ to create LUNs, or ‘smb‘ or 'nfs' to create shared folders on DSM.                                                     | 'iscsi' | iSCSI, SMB, NFS     |
-    | *formatOptions*                                  | string | Additional options/arguments passed to `mkfs.*` command. See a linux manual that corresponds with your FS of choice.                                               | -       | iSCSI               |
-    | *protocol*                                       | string | The storage backend protocol. Enter ‘iscsi’ to create LUNs or ‘smb‘ to create shared folders on DSM.                                                               | 'iscsi' | iSCSI, SMB          |
-    | *formatOptions*                                  | string | Additional options/arguments passed to `mkfs.*` command. See a linux manual that corresponds with your FS of choice.                                             | -       | iSCSI               |
-    | *devAttribs*                                     | string | Additional device attributes passed to LUN create API.                                                                                                             | -       | iSCSI               |
-    | *csi.storage.k8s.io/node-stage-secret-name*      | string | The name of node-stage-secret. Required if DSM shared folder is accessed via SMB.                                                                                  | -       | SMB                 |
-    | *csi.storage.k8s.io/node-stage-secret-namespace* | string | The namespace of node-stage-secret. Required if DSM shared folder is accessed via SMB.                                                                             | -       | SMB                 |
-    | *mountPermissions*                               | string | Mounted folder permissions. If set as non-zero, driver will perform `chmod` after mount                                                                            | '0750'  | NFS                 |
+| Name                                             | Type   | Description                                                                                                                                                        | Default | Supported protocols |
+| ------------------------------------------------ | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------- | ------------------- |
+| *dsm*                                            | string | The IPv4 address of your DSM, which must be included in the `client-info.yml` for the CSI driver to log in to DSM                                                  | -       | iSCSI, SMB, NFS     |
+| *location*                                       | string | The location (/volume1, /volume2, ...) on DSM where the LUN for *PersistentVolume* will be created                                                                 | -       | iSCSI, SMB, NFS     |
+| *fsType*                                         | string | The formatting file system of the *PersistentVolumes* when you mount them on the pods. This parameter only works with iSCSI. For SMB, the fsType is always ‘cifs‘. | 'ext4'  | iSCSI               |
+| *protocol*                                       | string | The storage backend protocol. Enter ‘iscsi’ to create LUNs, or ‘smb‘ or 'nfs' to create shared folders on DSM.                                                     | 'iscsi' | iSCSI, SMB, NFS     |
+| *formatOptions*                                  | string | Additional options/arguments passed to `mkfs.*` command. See a linux manual that corresponds with your FS of choice.                                               | -       | iSCSI               |
+| *protocol*                                       | string | The storage backend protocol. Enter ‘iscsi’ to create LUNs or ‘smb‘ to create shared folders on DSM.                                                               | 'iscsi' | iSCSI, SMB          |
+| *formatOptions*                                  | string | Additional options/arguments passed to `mkfs.*` command. See a linux manual that corresponds with your FS of choice.                                               | -       | iSCSI               |
+| *devAttribs*                                     | string | Additional device attributes passed to LUN create API.                                                                                                             | -       | iSCSI               |
+| *csi.storage.k8s.io/node-stage-secret-name*      | string | The name of node-stage-secret. Required if DSM shared folder is accessed via SMB.                                                                                  | -       | SMB                 |
+| *csi.storage.k8s.io/node-stage-secret-namespace* | string | The namespace of node-stage-secret. Required if DSM shared folder is accessed via SMB.                                                                             | -       | SMB                 |
+| *mountPermissions*                               | string | Mounted folder permissions. If set as non-zero, driver will perform `chmod` after mount                                                                            | '0750'  | NFS                 |
+| *enableRecyclebin*                               | string | enable the recycleBin for NFS and SMB shares | false | NFS,SMB |
+| *recycleBinAdminOnly*                            | string | configure recycleBin for access by Admins only | false | NFS,SMB |
 
     **Notice**
 
