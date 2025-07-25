@@ -12,7 +12,7 @@ Please feel free to reach out and create an [Issue](https://github.com/xphyr/syn
 Driver Name: csi.san.synology.com
 | Driver Version                                                                   | Image                                                                 | Supported K8s Version |
 | -------------------------------------------------------------------------------- | --------------------------------------------------------------------- | --------------------- |
-| [v1.3.2](https://github.com/xphyr/synology-csi/tree/v1.3.2) | [synology-csi:1.3.2](https://github.com/xphyr/synology-csi/pkgs/container/synology-csi) | 1.20+           |
+| [v1.4.0](https://github.com/xphyr/synology-csi/tree/v1.4.0) | [synology-csi:1.4.0](https://github.com/xphyr/synology-csi/pkgs/container/synology-csi) | 1.25+           |
 
 
 
@@ -24,7 +24,7 @@ The Synology CSI driver supports:
 
 ## Installation
 ### Prerequisites
-- Kubernetes versions 1.19 or above
+- Kubernetes versions 1.25 or above
 - Synology NAS running:
     * DSM 7.0 or above
     * DSM UC 3.1 or above
@@ -221,7 +221,7 @@ Create and apply VolumeSnapshotClasses with the properties you want.
 1. Create YAML files using the one at `deploy/kubernetes/<k8s version>/snapshotter/volume-snapshot-class.yml` as the example, whose content is as below:
 
     ```
-    apiVersion: snapshot.storage.k8s.io/v1beta1    # v1 for kubernetes v1.20 and above
+    apiVersion: snapshot.storage.k8s.io/v1beta1    # v1 for kubernetes v1.25 and above
     kind: VolumeSnapshotClass
     metadata:
       name: synology-snapshotclass

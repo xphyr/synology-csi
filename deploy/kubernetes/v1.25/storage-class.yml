@@ -10,5 +10,7 @@ provisioner: csi.san.synology.com
 #   dsm: '1.1.1.1'
 #   location: '/volume1'
 #   fsType: 'ext4'
+#   recycleBin: false
+#   recycleBinAdminOnly: false
 reclaimPolicy: Retain
 allowVolumeExpansion: true

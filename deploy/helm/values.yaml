@@ -32,7 +32,7 @@ images:
     pullPolicy: IfNotPresent
     tag: v2.6.3
   plugin:
-    image: ghcr.io/xphyr/synology-csi:v1.3.0
+    image: ghcr.io/xphyr/synology-csi:v1.4.0
     pullPolicy: IfNotPresent
     # Defaults to {{ $.Chart.AppVersion }} if empty or not present:
     tag: ""

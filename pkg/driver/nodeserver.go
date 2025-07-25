@@ -18,7 +18,9 @@ package driver
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -134,7 +136,7 @@ func createTargetMountPathNFS(mounter mount.Interface, mountPath string, mountPe
 func createTargetMountPath(mounter mount.Interface, mountPath string, isBlock bool) (bool, error) {
 	isMount, err := mounter.IsMountPoint(mountPath)
 	if err != nil {
-		if os.IsNotExist(err) {
+		if errors.Is(err, fs.ErrNotExist) {
 			if isBlock {
 				pathFile, err := os.OpenFile(mountPath, os.O_CREATE|os.O_RDWR, 0750)
 				if err != nil {
