@@ -33,3 +33,7 @@ This release introduces potentially **BREAKING CHANGES** If you are converting f
     - **NOTE:** This is a "breaking change". Previous releases enabled the recyclebin by default. This causes issues with many apps in K8s, so going forward all NEW shares will have the recyclebin disabled by default. You can enable the recyclebin by setting `recycleBin: true` in the storageClass definition file.
     - **NOTE:** This is also "breaking change". Previous releases with the recyclebin enabled an option that only allowed "Administrator" access to the files in the recycleBin. This causes issues with many apps in K8s, so going forward all NEW shares that have the recyclebin enabled will allow anyone access to the recycleBin. You can change this recyclebin by setting `recycleBinAdminOnly: true` in the storageClass definition file.
   - removed the final deprecated function calls from k8s.io/mount-utils from code base
+
+# v1.4.1
+ - Release 1.4.0 had an issue with the cluster-role for the snapshotter. Changes made in the deployment file in v1.3.2 were lost in the change over to supporting v1.25 or higher.
+

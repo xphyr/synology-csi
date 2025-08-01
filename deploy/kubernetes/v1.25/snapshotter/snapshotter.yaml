@@ -21,7 +21,7 @@ rules:
     verbs: ["create", "get", "list", "watch", "update", "patch", "delete"]
   - apiGroups: ["snapshot.storage.k8s.io"]
     resources: ["volumesnapshotcontents/status"]
-    verbs: ["update"]
+    verbs: ["update", "patch"]
 
 ---
 kind: ClusterRoleBinding
@@ -81,7 +81,7 @@ spec:
             capabilities:
               add: ["SYS_ADMIN"]
             allowPrivilegeEscalation: true
-          image: ghcr.io/xphyr/synology-csi:1.4.0
+          image: ghcr.io/xphyr/synology-csi:1.4.1
           args:
             - --nodeid=NotUsed
             - --endpoint=$(CSI_ENDPOINT)

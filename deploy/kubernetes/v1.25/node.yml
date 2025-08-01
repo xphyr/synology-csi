@@ -90,7 +90,7 @@ spec:
               add:
               - SYS_ADMIN
           imagePullPolicy: IfNotPresent
-          image: ghcr.io/xphyr/synology-csi:1.4.0
+          image: ghcr.io/xphyr/synology-csi:1.4.1
           args:
             - --nodeid=$(KUBE_NODE_NAME)
             - --endpoint=$(CSI_ENDPOINT)

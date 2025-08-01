@@ -392,6 +392,8 @@ func (cs *controllerServer) ControllerGetCapabilities(ctx context.Context, req *
 }
 
 func (cs *controllerServer) CreateSnapshot(ctx context.Context, req *csi.CreateSnapshotRequest) (*csi.CreateSnapshotResponse, error) {
+	var err error
+
 	srcVolId := req.GetSourceVolumeId()
 	snapshotName := req.GetName() // snapshot-XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
 	params := req.GetParameters()
@@ -402,6 +404,15 @@ func (cs *controllerServer) CreateSnapshot(ctx context.Context, req *csi.CreateS
 
 	if snapshotName == "" {
 		return nil, status.Error(codes.InvalidArgument, "Snapshot name is empty.")
+	}
+
+	isLocked := false
+	if params["is_locked"] != "" {
+		isLocked, err = strconv.ParseBool(params["is_locked"])
+		if err != nil {
+			log.Errorf("failed to parse the is_locked parameter. %s, is not a valid option", params["is_locked"])
+			return nil, err
+		}
 	}
 
 	// idempotency
@@ -423,12 +434,6 @@ func (cs *controllerServer) CreateSnapshot(ctx context.Context, req *csi.CreateS
 				ReadyToUse:     (orgSnap.Status == "Healthy"),
 			},
 		}, nil
-	}
-
-	isLocked, err := strconv.ParseBool(params["is_locked"])
-	if err != nil {
-		log.Errorf("failed to parse the is_locked parameter. %s, is not a valid option", params["is_locked"])
-		return nil, err
 	}
 
 	// not exist, going to create a new snapshot

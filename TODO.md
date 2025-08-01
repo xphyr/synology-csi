@@ -27,16 +27,18 @@ The following is a list of tasks to bring the Synology CSI driver up to date.
   - [x] Add pod security labels to namespace 
   - [x] Update deployment documentation
   - [x] Update deployment scripts
-- [ ] Add configuration to disable RecycleBin on NFS/SMB shares
-- [ ] Add configuration to allow non-admin access to RecycleBin
+- [X] Add configuration to disable RecycleBin on NFS/SMB shares
+- [X] Add configuration to allow non-admin access to RecycleBin
 - [ ] Override NFS mount Permissions for multi-homed servers
+  - [ ] Handle in stages. Step one create an option to set client permissions to a CIDR
 - [ ] Address Issues in upstream project
-- [ ] Update code base to use current CSI releases
+- [X] Update code base to use current CSI releases
 - [ ] Update testing framework
-- [ ] Remove deprecated function calls in k8s.io/mount-utils
+- [X] Remove deprecated function calls in k8s.io/mount-utils
 - [ ] Support Windows
 - [ ] Add marker to share/lun that says what cluster the share/lun is used for if you have multiple clusters
 - [x] Fix Snapshotter functionality
-  - CSI Snapshotter is based on version 4.2.1 (released in August of 2021) this needs to be updated to v6+
-  - clusterRole needs to add additional privileges to work properly
+  - [x] CSI Snapshotter is based on version 4.2.1 (released in August of 2021) this needs to be updated to v6+
+  - [x] clusterRole needs to add additional privileges to work properly
 - [ ] Add support for the [csi-testing framework](https://github.com/kubernetes-csi/csi-test/tree/master)
+- [ ] Add support for Topology [CSI Topology Feature](https://kubernetes-csi.github.io/docs/topology.html)
