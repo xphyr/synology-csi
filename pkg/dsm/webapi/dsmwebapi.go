@@ -18,13 +18,15 @@ import (
 )
 
 type DSM struct {
-	Ip         string
-	Port       int
-	Username   string
-	Password   string
-	Sid        string
-	Https      bool
-	Controller string //new
+	Ip                   string
+	Port                 int
+	Username             string
+	Password             string
+	Sid                  string
+	Https                bool
+	Controller           string //new
+	ClientSubnetOverride string
+	NodeSourceIP         string
 }
 
 type errData struct {

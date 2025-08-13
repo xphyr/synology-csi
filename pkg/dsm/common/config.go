@@ -12,11 +12,12 @@ import (
 )
 
 type ClientInfo struct {
-	Host     string `yaml:"host"`
-	Port     int    `yaml:"port"`
-	Https    bool   `yaml:"https"`
-	Username string `yaml:"username"`
-	Password string `yaml:"password"`
+	Host                 string `yaml:"host"`
+	Port                 int    `yaml:"port"`
+	Https                bool   `yaml:"https"`
+	Username             string `yaml:"username"`
+	Password             string `yaml:"password"`
+	ClientSubnetOverride string `default:"" yaml:"clientsubnetoverride"`
 }
 
 type SynoInfo struct {

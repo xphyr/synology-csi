@@ -323,10 +323,11 @@ func (ns *nodeServer) setNFSVolumePrivilege(sourcePath string, hostnames []strin
 		ShareName: shareName,
 	}
 
-	for _, hostname := range hostnames {
+	if dsm.ClientSubnetOverride != "" {
+		// we need to create a different priv rule if we have a subnet override
 		priv.Rule = append(priv.Rule, webapi.PrivilegeRule{
 			Async:      true,
-			Client:     hostname,
+			Client:     dsm.ClientSubnetOverride,
 			Crossmnt:   true,
 			Insecure:   true,
 			Privilege:  string(authType),
@@ -338,6 +339,25 @@ func (ns *nodeServer) setNFSVolumePrivilege(sourcePath string, hostnames []strin
 				Sys:              true,
 			},
 		})
+	} else {
+		// this code grabs all host IP addresses
+		// assumes that no special network has been defined
+		for _, hostname := range hostnames {
+			priv.Rule = append(priv.Rule, webapi.PrivilegeRule{
+				Async:      true,
+				Client:     hostname,
+				Crossmnt:   true,
+				Insecure:   true,
+				Privilege:  string(authType),
+				RootSquash: "root",
+				SecurityFlavor: webapi.SecurityFlavor{
+					Kerbros:          false,
+					KerbrosIntegrity: false,
+					KerbrosPrivacy:   false,
+					Sys:              true,
+				},
+			})
+		}
 	}
 
 	err = dsm.ShareNfsPrivilegeSave(priv)

@@ -37,3 +37,5 @@ This release introduces potentially **BREAKING CHANGES** If you are converting f
 # v1.4.1
  - Release 1.4.0 had an issue with the cluster-role for the snapshotter. Changes made in the deployment file in v1.3.2 were lost in the change over to supporting v1.25 or higher.
 
+# v1.4.2
+ - Added support for using a dedicated subnet for storage access. In prior releases if you were connecting to a Synology array over a dedicated subnet, NFS would not work due to NFS ACLs. There is now a "clientsubnetoverride" as part of the `client-info.yaml` file which will allow you to override the NFS client permissions to a subnet as defined in [CIDR notation](https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing). 

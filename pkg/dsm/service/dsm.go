@@ -7,12 +7,14 @@ package service
 import (
 	"errors"
 	"fmt"
+	"net"
 
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/cenkalti/backoff/v4"
+	netroute "github.com/libp2p/go-netroute"
 	log "github.com/sirupsen/logrus"
 	"github.com/xphyr/synology-csi/pkg/dsm/common"
 	"github.com/xphyr/synology-csi/pkg/dsm/webapi"
@@ -39,19 +41,37 @@ func (service *DsmService) AddDsm(client common.ClientInfo) error {
 		return nil
 	}
 
-	dsm := &webapi.DSM{
-		Ip:       client.Host,
-		Port:     client.Port,
-		Username: client.Username,
-		Password: client.Password,
-		Https:    client.Https,
+	preferredSrc, err := determineRouteInterface(client.Host)
+	if err != nil {
+		return fmt.Errorf("failed to determine route to DSM: [%s]. err: %v", client.Host, err)
 	}
-	err := dsm.Login()
+
+	dsm := &webapi.DSM{
+		Ip:                   client.Host,
+		Port:                 client.Port,
+		Username:             client.Username,
+		Password:             client.Password,
+		Https:                client.Https,
+		ClientSubnetOverride: client.ClientSubnetOverride,
+		NodeSourceIP:         preferredSrc,
+	}
+
+	err = dsm.Login()
+
 	if err != nil {
 		return fmt.Errorf("failed to login to DSM: [%s]. err: %v", dsm.Ip, err)
 	}
-	service.dsms[dsm.Ip] = dsm
-	log.Infof("Add DSM [%s].", dsm.Ip)
+
+	if dsm.ClientSubnetOverride != "" {
+		// Parse the CIDR string
+		_, subnetOverride, err := net.ParseCIDR(dsm.ClientSubnetOverride)
+		if err != nil {
+			log.Fatalf("Error parsing CIDR: [%s], %v", subnetOverride, err)
+		}
+		log.Infof("Add DSM [%s], with subnetOverride [%s] and sourceIP [%s].", dsm.Ip, dsm.ClientSubnetOverride, dsm.NodeSourceIP)
+	} else {
+		log.Infof("Add DSM [%s] and sourceIP [%s].", dsm.Ip, dsm.NodeSourceIP)
+	}
 	return nil
 }
 
@@ -98,6 +118,27 @@ func (service *DsmService) ListDsmVolumes(ip string) ([]webapi.VolInfo, error) {
 	}
 
 	return allVolInfos, nil
+}
+
+func determineRouteInterface(serverAddr string) (string, error) {
+
+	var ip net.IP
+	if ip = net.ParseIP(serverAddr); ip == nil {
+		return "", fmt.Errorf("error as non-ip target %s is passed", serverAddr)
+	}
+
+	r, err := netroute.New()
+	if err != nil {
+		return "", fmt.Errorf("error while creating routing object: %v", err)
+	}
+	_, gatewayIP, preferredSrc, err := r.Route(ip)
+
+	if err != nil {
+		return "", fmt.Errorf("error routing to ip: %s, %v", serverAddr, err)
+	}
+
+	log.Infof("Preferred path to %s is gatewayIP: %v preferredSrc: %v", serverAddr, gatewayIP, preferredSrc)
+	return preferredSrc.String(), nil
 }
 
 func (service *DsmService) getFirstAvailableVolume(dsm *webapi.DSM, sizeInBytes int64, protocol string) (webapi.VolInfo, error) {

@@ -15,7 +15,7 @@ The following is a list of tasks to bring the Synology CSI driver up to date.
      - [x] Update docs and deployment files to use new ghcr.io repo
 - [x] Address known security vulnerabilities in go modules
 - [x] `gofmt` to apply proper formatting and simplification to the entire codebase
-  - [ ] ensure gofmt is applied as part of the build process/ci 
+  - [x] ensure gofmt is applied as part of the build process/ci 
 - [x] apply `go-staticcheck` across all files and address issues.
 - [x] Bump to modern version of go compiler (1.24)
 - [ ] Add support for OpenShift SCC profiles
@@ -29,8 +29,11 @@ The following is a list of tasks to bring the Synology CSI driver up to date.
   - [x] Update deployment scripts
 - [X] Add configuration to disable RecycleBin on NFS/SMB shares
 - [X] Add configuration to allow non-admin access to RecycleBin
-- [ ] Override NFS mount Permissions for multi-homed servers
-  - [ ] Handle in stages. Step one create an option to set client permissions to a CIDR
+- [X] Override NFS mount Permissions for multi-homed servers
+  - [X] Handle in stages. Step one create an option to set client permissions to a CIDR
+    - This is addressed with "ClientSubnetOverride" as part of the client-info.yaml configuration file
+  - [X] Long term, need to identify the IP address used to connect to the device and add that to Topology/CSINode information so we can use this in NFS and iSCSI.
+    - We are capturing the proper IP as `NodeSourceIP` in the dsmwebapi object. We may be able to use this later
 - [ ] Address Issues in upstream project
 - [X] Update code base to use current CSI releases
 - [ ] Update testing framework

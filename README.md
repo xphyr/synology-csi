@@ -12,7 +12,7 @@ Please feel free to reach out and create an [Issue](https://github.com/xphyr/syn
 Driver Name: csi.san.synology.com
 | Driver Version                                              | Image                                                                                   | Supported K8s Version |
 | ----------------------------------------------------------- | --------------------------------------------------------------------------------------- | --------------------- |
-| [v1.4.1](https://github.com/xphyr/synology-csi/tree/v1.4.1) | [synology-csi:1.4.1](https://github.com/xphyr/synology-csi/pkgs/container/synology-csi) | 1.25+                 |
+| [v1.4.2](https://github.com/xphyr/synology-csi/tree/v1.4.2) | [synology-csi:1.4.2](https://github.com/xphyr/synology-csi/pkgs/container/synology-csi) | 1.25+                 |
 
 
 
@@ -101,8 +101,11 @@ Create a secret to specify the storage system address and credentials (username 
         https: true
         username: <username>
         password: <password>
+        clientsubnetoverride: "subnet in CIDR notation"
       ```
     The `clients` field can contain more than one Synology NAS. Seperate them with a prefix `-`.
+
+    > **NOTE:** `clientsubnetoverride` allows the use of a dedicated network for NFS traffic on your k8s nodes. If you have a dedicated network for storage access on your nodes, you will need to add a subnet definition here. The configuration should be in CIDR notation eg. "172.16.20.0/24". If you do not have a dedicated Storage network, you do NOT need to set this option.
 
 2. Create the secret using the following command (usually done by deploy.sh):
     ```!
@@ -210,8 +213,9 @@ Create and apply StorageClasses with the properties you want.
     - If you leave the parameter *location* blank, the CSI driver will choose a volume on DSM with available storage to create the volumes.
     - All iSCSI volumes created by the CSI driver are Thin Provisioned LUNs on DSM. This will allow you to take snapshots of them.
     - `devAttribs` is string of parameters separated with `,`. If the parameter name ends with `-`, the `-` sign is stripped and parameter is explicitly set to `Enabled: 0`.
+    - Unless you are using a secondary Storage Network on your nodes, you should NOT define an nfsACLOverride. 
 
-3. Apply the YAML files to the Kubernetes cluster.
+1. Apply the YAML files to the Kubernetes cluster.
 
     ```
     kubectl apply -f <storageclass_yaml>
@@ -266,7 +270,7 @@ If you want to use images you built locally for installation, edit all files und
 
 This project uses [GoReleaser](https://goreleaser.com/) to build the multi-arch container files. 
 
-To test: `goreleaser release --snapshot --clean`
+To test: `REPO_OWNER=<usernamehere> goreleaser release --snapshot --clean`
 
 ### Installation
 
