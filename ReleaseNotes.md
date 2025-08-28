@@ -39,3 +39,6 @@ This release introduces potentially **BREAKING CHANGES** If you are converting f
 
 # v1.4.2
  - Added support for using a dedicated subnet for storage access. In prior releases if you were connecting to a Synology array over a dedicated subnet, NFS would not work due to NFS ACLs. There is now a "clientsubnetoverride" as part of the `client-info.yaml` file which will allow you to override the NFS client permissions to a subnet as defined in [CIDR notation](https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing). 
+
+# v1.4.3
+ - Updated description to include the kubernetes cluster name to help in resolving where a lun is in use if you have mulitple clusters.

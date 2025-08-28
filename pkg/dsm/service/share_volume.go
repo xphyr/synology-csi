@@ -157,7 +157,7 @@ func (service *DsmService) createSMBorNFSVolumeByDsm(dsm *webapi.DSM, spec *mode
 		ShareInfo: webapi.ShareInfo{
 			Name:                spec.ShareName,
 			VolPath:             spec.Location,
-			Desc:                "Created by Synology K8s CSI",
+			Desc:                spec.LunDescription,
 			EnableShareCow:      false,
 			EnableRecycleBin:    spec.EnableRecycleBin,
 			RecycleBinAdminOnly: spec.RecycleBinAdminOnly,

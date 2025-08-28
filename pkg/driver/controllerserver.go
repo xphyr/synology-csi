@@ -188,6 +188,10 @@ func (cs *controllerServer) CreateVolume(ctx context.Context, req *csi.CreateVol
 		pvcNamespace := params["csi.storage.k8s.io/pvc/namespace"]
 		pvcName := params["csi.storage.k8s.io/pvc/name"]
 		lunDescription = pvcNamespace + "/" + pvcName
+		// should be able to add cluster name here, so it ends up <clusterName>/pvcNamespace/pvcName
+		if params["clusterName"] != "" {
+			lunDescription = params["clusterName"] + "/" + lunDescription
+		}
 	}
 
 	nfsVer := parseNfsVesrion(mountOptions)
