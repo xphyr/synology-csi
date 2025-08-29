@@ -72,6 +72,7 @@ func (service *DsmService) AddDsm(client common.ClientInfo) error {
 	} else {
 		log.Infof("Add DSM [%s] and sourceIP [%s].", dsm.Ip, dsm.NodeSourceIP)
 	}
+	service.dsms[dsm.Ip] = dsm
 	return nil
 }
 
