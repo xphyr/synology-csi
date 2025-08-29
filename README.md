@@ -12,7 +12,7 @@ Please feel free to reach out and create an [Issue](https://github.com/xphyr/syn
 Driver Name: csi.san.synology.com
 | Driver Version                                              | Image                                                                                   | Supported K8s Version |
 | ----------------------------------------------------------- | --------------------------------------------------------------------------------------- | --------------------- |
-| [v1.4.2](https://github.com/xphyr/synology-csi/tree/v1.4.2) | [synology-csi:1.4.2](https://github.com/xphyr/synology-csi/pkgs/container/synology-csi) | 1.25+                 |
+| [v1.4.3](https://github.com/xphyr/synology-csi/tree/v1.4.3) | [synology-csi:1.4.3](https://github.com/xphyr/synology-csi/pkgs/container/synology-csi) | 1.25+                 |
 
 
 
@@ -207,6 +207,7 @@ Create and apply StorageClasses with the properties you want.
 | *mountPermissions*                               | string | Mounted folder permissions. If set as non-zero, driver will perform `chmod` after mount                                                                            | '0750'  | NFS                 |
 | *enableRecyclebin*                               | string | enable the recycleBin for NFS and SMB shares | false | NFS,SMB |
 | *recycleBinAdminOnly*                            | string | configure recycleBin for access by Admins only | false | NFS,SMB |
+| *clusterName*                                    | string | adds a cluster name to the description of the LUN or share created | - | iSCSI,NFS,SMB |
 
     **Notice**
 

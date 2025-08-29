@@ -12,5 +12,6 @@ provisioner: csi.san.synology.com
 #   fsType: 'ext4'
 #   recycleBin: false
 #   recycleBinAdminOnly: false
+#   clusterName: myCluster
 reclaimPolicy: Retain
 allowVolumeExpansion: true
