@@ -207,7 +207,7 @@ Create and apply StorageClasses with the properties you want.
 | *mountPermissions*                               | string | Mounted folder permissions. If set as non-zero, driver will perform `chmod` after mount                                                                            | '0750'  | NFS                 |
 | *enableRecyclebin*                               | string | enable the recycleBin for NFS and SMB shares | false | NFS,SMB |
 | *recycleBinAdminOnly*                            | string | configure recycleBin for access by Admins only | false | NFS,SMB |
-| *clusterName*                                    | string | adds a cluster name to the description of the LUN or share created | - | iSCSI,NFS,SMB |
+| *clusterName*                                    | string | Adds a cluster name to the description of the LUN or share created. This will show up in the description as `<clusterName>/<namespace>/<pvcName>`. | - | iSCSI,NFS,SMB |
 
     **Notice**
 
