@@ -28,6 +28,15 @@ type LunInfo struct {
 	DevAttribs       []LunDevAttrib `json:"dev_attribs"`
 }
 
+type HostInfo struct {
+	Name         string   `json:"name"`
+	Uuid         string   `json:"uuid"`
+	Description  string   `json:"description"`
+	HostID       int      `json:"host_id"`
+	InitiatorIDs []string `json:"initiator_ids"`
+	Protocol     string   `json:"protocol"`
+}
+
 type MappedLun struct {
 	LunUuid      string `json:"lun_uuid"`
 	MappingIndex int    `json:"mapping_index"`
@@ -159,6 +168,30 @@ func (dsm *DSM) LunList() ([]LunInfo, error) {
 		return nil, fmt.Errorf("failed to assert response to %T", &LunInfos{})
 	}
 	return lunInfos.Luns, nil
+}
+
+func (dsm *DSM) HostList() ([]HostInfo, error) {
+	params := url.Values{}
+	params.Add("api", "SYNO.Core.ISCSI.Host")
+	params.Add("method", "list")
+	params.Add("version", "1")
+
+	type HostInfos struct {
+		Hosts []HostInfo `json:"hosts"`
+	}
+
+	resp, err := dsm.sendRequest("", &HostInfos{}, params, "webapi/entry.cgi")
+	if err != nil {
+		return nil, errCodeMapping(resp.ErrorCode, err)
+	}
+
+	fmt.Println(resp)
+
+	hostInfos, ok := resp.Data.(*HostInfos)
+	if !ok {
+		return nil, fmt.Errorf("failed to assert response to %T", &HostInfos{})
+	}
+	return hostInfos.Hosts, nil
 }
 
 func (dsm *DSM) LunCreate(spec LunCreateSpec) (string, error) {
@@ -350,6 +383,25 @@ func (dsm *DSM) LunMapTarget(targetIds []string, lunUuid string) error {
 	params := url.Values{}
 	params.Add("api", "SYNO.Core.ISCSI.LUN")
 	params.Add("method", "map_target")
+	params.Add("version", "1")
+	params.Add("uuid", strconv.Quote(lunUuid))
+	params.Add("target_ids", fmt.Sprintf("[%s]", strings.Join(targetIds, ",")))
+
+	if logger.WebapiDebug {
+		log.Debugln(params)
+	}
+
+	resp, err := dsm.sendRequest("", &struct{}{}, params, "webapi/entry.cgi")
+	if err != nil {
+		return errCodeMapping(resp.ErrorCode, err)
+	}
+	return nil
+}
+
+func (dsm *DSM) LunUnMapTarget(targetIds []string, lunUuid string) error {
+	params := url.Values{}
+	params.Add("api", "SYNO.Core.ISCSI.LUN")
+	params.Add("method", "unmap_target")
 	params.Add("version", "1")
 	params.Add("uuid", strconv.Quote(lunUuid))
 	params.Add("target_ids", fmt.Sprintf("[%s]", strings.Join(targetIds, ",")))
