@@ -42,3 +42,8 @@ This release introduces potentially **BREAKING CHANGES** If you are converting f
 
 # v1.4.3
  - Updated description to include the kubernetes cluster name to help in resolving where a lun is in use if you have multiple clusters. This will update the description to have the following `<clusterName>/<namespace>/<pvcname>` This will help in identifying what cluster a LUN or share belongs to if you have multiple clusters. If you do not supply a clusterName the original description of `<namespace>/<pvcname>` will be used
+
+# v1.4.4.
+  - Updated the synocli to list out hosts. 
+  - Added additional functionality to the webapi module for use in another project.
+  - Updated the PersistentVolume VolumeAttributes field to include the LUN UUID

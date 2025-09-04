@@ -25,7 +25,7 @@ import (
 
 const (
 	DriverName    = "csi.san.synology.com" // CSI driver name
-	DriverVersion = "1.4.3-xphyr"
+	DriverVersion = "1.4.4-xphyr"
 )
 
 var (

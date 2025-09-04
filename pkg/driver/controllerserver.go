@@ -251,6 +251,7 @@ func (cs *controllerServer) CreateVolume(ctx context.Context, req *csi.CreateVol
 				"formatOptions":    formatOptions,
 				"mountPermissions": mountPermissions,
 				"baseDir":          k8sVolume.BaseDir,
+				"uuid":             k8sVolume.Lun.Uuid,
 			},
 		},
 	}, nil
