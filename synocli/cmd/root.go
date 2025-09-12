@@ -27,6 +27,7 @@ func init() {
 	rootCmd.AddCommand(cmdLun)
 	rootCmd.AddCommand(cmdShare)
 	rootCmd.AddCommand(cmdHost)
+	rootCmd.AddCommand(cmdDNS)
 }
 
 func Execute() {
