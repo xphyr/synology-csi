@@ -30,7 +30,7 @@ type ZoneRecord struct {
 	ZoneType    string `json:"zone_type"`
 }
 
-func (dsm *DSM) RecordCreate(dnsRecord DNSRecord) {
+func (dsm *DSM) RecordCreate(dnsRecord DNSRecord) error {
 	params := url.Values{}
 	params.Add("api", "SYNO.DNSServer.Zone.Record")
 	params.Add("method", "create")
@@ -46,13 +46,15 @@ func (dsm *DSM) RecordCreate(dnsRecord DNSRecord) {
 	if err != nil {
 		fmt.Println("There was an error.")
 		fmt.Printf("The error was: %s, the response was %s\n", err, resp)
-		//return nil, errCodeMapping(resp.ErrorCode, err)
+		return err
 	}
 	fmt.Println(resp)
 
+	return nil
+
 }
 
-func (dsm *DSM) RecordDelete(dnsRecord DNSRecord) {
+func (dsm *DSM) RecordDelete(dnsRecord DNSRecord) error {
 	params := url.Values{}
 	params.Add("api", "SYNO.DNSServer.Zone.Record")
 	params.Add("method", "delete")
@@ -68,9 +70,11 @@ func (dsm *DSM) RecordDelete(dnsRecord DNSRecord) {
 	if err != nil {
 		fmt.Println("There was an error.")
 		fmt.Printf("The error was: %s, the response was %s\n", err, resp)
-		//return nil, errCodeMapping(resp.ErrorCode, err)
+		return err
 	}
 	fmt.Println(resp)
+
+	return nil
 }
 
 /*
