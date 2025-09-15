@@ -88,37 +88,44 @@ func (dsm *DSM) updateDNSrecord() {
 }
 
 */
-
-func (dsm *DSM) RecordList(zoneName string, zoneType string) ([]DNSRecord, error) {
-	params := url.Values{}
-	params.Add("api", "SYNO.DNSServer.Zone.Record")
-	params.Add("method", "list")
-	params.Add("version", "1")
-	params.Add("action", "enum")
-	params.Add("sort_by", "rr_owner")
-	params.Add("sort_direction", "ASC")
-	params.Add("filter_by", "")
-	params.Add("zone_name", zoneName)
-	params.Add("domain_name", zoneName)
-	params.Add("zone_type", zoneType)
+// RecordList gets all records for the specified zone names and zone type (master/slave)
+func (dsm *DSM) RecordList(zoneName []string, zoneType string) ([]DNSRecord, error) {
 
 	type DNSRecords struct {
 		Record []DNSRecord `json:"items"`
 	}
 
-	resp, err := dsm.sendRequest("", &DNSRecords{}, params, "webapi/entry.cgi")
-	if err != nil {
-		fmt.Println("There was an error.")
-		fmt.Printf("The error was: %s, the response was %s\n", err, resp)
-		return nil, errCodeMapping(resp.ErrorCode, err)
-	}
-	fmt.Println(resp)
+	var allDNSRecords []DNSRecord
 
-	dNSRecords, ok := resp.Data.(*DNSRecords)
-	if !ok {
-		return nil, fmt.Errorf("failed to assert response to %T", &DNSRecords{})
+	for _, zn := range zoneName {
+		params := url.Values{}
+		params.Add("api", "SYNO.DNSServer.Zone.Record")
+		params.Add("method", "list")
+		params.Add("version", "1")
+		params.Add("action", "enum")
+		params.Add("sort_by", "rr_owner")
+		params.Add("sort_direction", "ASC")
+		params.Add("filter_by", "")
+		params.Add("zone_name", zn)
+		params.Add("domain_name", zn)
+		params.Add("zone_type", zoneType)
+
+		resp, err := dsm.sendRequest("", &DNSRecords{}, params, "webapi/entry.cgi")
+		if err != nil {
+			fmt.Println("There was an error.")
+			fmt.Printf("The error was: %s, the response was %s\n", err, resp)
+			return nil, errCodeMapping(resp.ErrorCode, err)
+		}
+		fmt.Println(resp)
+
+		dNSRecords, ok := resp.Data.(*DNSRecords)
+		if !ok {
+			return nil, fmt.Errorf("failed to assert response to %T", &DNSRecords{})
+		}
+		allDNSRecords = append(allDNSRecords, dNSRecords.Record...)
 	}
-	return dNSRecords.Record, nil
+
+	return allDNSRecords, nil
 }
 
 func (dsm *DSM) ZoneList() ([]ZoneRecord, error) {

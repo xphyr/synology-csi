@@ -37,7 +37,7 @@ var cmdDNSList = &cobra.Command{
 				fmt.Printf("Failed to login to DSM: [%s]. err: %v\n", dsm.Ip, err)
 				os.Exit(1)
 			}
-			records, err := dsm.RecordList("xphyrlab.net", "master")
+			records, err := dsm.RecordList([]string{"xphyrlab.net", "home.xphyr.net"}, "master")
 			if err != nil {
 				fmt.Println(err)
 				os.Exit(1)
