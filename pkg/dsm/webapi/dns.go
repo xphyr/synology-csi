@@ -14,10 +14,10 @@ import (
 type DNSRecord struct {
 	ZoneName   string `json:"zone_name"`   // required always the same as domain_name
 	DomainName string `json:"domain_name"` // required always the same as zone_name
-	RROwner    string `json:"rr_owner"`    // fully qualified domain name
-	RRttl      string `json:"rr_ttl"`      // time to live for record
-	RRtype     string `json:"rr_type"`     // type of record A,TXT,CNAME
-	RRInfo     string `json:"rr_info"`     // value for the record
+	Record     string `json:"rr_owner"`    // fully qualified domain name
+	TTL        string `json:"rr_ttl"`      // time to live for record
+	Type       string `json:"rr_type"`     // type of record A,TXT,CNAME
+	Value      string `json:"rr_info"`     // value for the record
 	FullRecord string `json:"full_record"`
 }
 
@@ -37,10 +37,10 @@ func (dsm *DSM) RecordCreate(dnsRecord DNSRecord) {
 	params.Add("version", "1")
 	params.Add("zone_name", dnsRecord.ZoneName)
 	params.Add("domain_name", dnsRecord.DomainName)
-	params.Add("rr_owner", dnsRecord.RROwner)
-	params.Add("rr_ttl", dnsRecord.RRttl)
-	params.Add("rr_type", dnsRecord.RRtype)
-	params.Add("rr_info", dnsRecord.RRInfo)
+	params.Add("rr_owner", dnsRecord.Record)
+	params.Add("rr_ttl", dnsRecord.TTL)
+	params.Add("rr_type", dnsRecord.Type)
+	params.Add("rr_info", dnsRecord.Value)
 
 	resp, err := dsm.sendRequest("", &struct{}{}, params, "webapi/entry.cgi")
 	if err != nil {
