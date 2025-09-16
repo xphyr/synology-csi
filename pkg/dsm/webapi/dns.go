@@ -45,6 +45,7 @@ func (dsm *DSM) RecordCreate(dnsRecord DNSRecord) error {
 	resp, err := dsm.sendRequest("", &struct{}{}, params, "webapi/entry.cgi")
 	if err != nil {
 		fmt.Println("There was an error.")
+		fmt.Printf("The Params were: %s", params.Encode())
 		fmt.Printf("The error was: %s, the response was %s\n", err, resp)
 		return err
 	}
@@ -69,6 +70,7 @@ func (dsm *DSM) RecordDelete(dnsRecord DNSRecord) error {
 	resp, err := dsm.sendRequest("", &struct{}{}, params, "webapi/entry.cgi")
 	if err != nil {
 		fmt.Println("There was an error.")
+		fmt.Printf("The Params were: %s", params.Encode())
 		fmt.Printf("The error was: %s, the response was %s\n", err, resp)
 		return err
 	}
@@ -113,10 +115,10 @@ func (dsm *DSM) RecordList(zoneName []string, zoneType string) ([]DNSRecord, err
 		resp, err := dsm.sendRequest("", &DNSRecords{}, params, "webapi/entry.cgi")
 		if err != nil {
 			fmt.Println("There was an error.")
+			fmt.Printf("The Params were: %s", params.Encode())
 			fmt.Printf("The error was: %s, the response was %s\n", err, resp)
 			return nil, errCodeMapping(resp.ErrorCode, err)
 		}
-		fmt.Println(resp)
 
 		dNSRecords, ok := resp.Data.(*DNSRecords)
 		if !ok {
