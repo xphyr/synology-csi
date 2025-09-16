@@ -125,7 +125,121 @@ var cmdZoneList = &cobra.Command{
 	},
 }
 
+var cmdRecordCreate = &cobra.Command{
+	Use:   "record-create",
+	Short: "create record",
+	Args:  cobra.MinimumNArgs(5),
+	Run: func(cmd *cobra.Command, args []string) {
+		dsms, err := ListDsms(DsmId)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
+		var dnsRecord webapi.DNSRecord
+
+		dnsRecord.ZoneName = args[0]
+		dnsRecord.DomainName = args[0]
+		dnsRecord.Record = args[1]
+		dnsRecord.TTL = args[2]
+		dnsRecord.Type = args[3]
+		dnsRecord.Value = args[4]
+
+		for _, dsm := range dsms {
+			if err := dsm.Login(); err != nil {
+				fmt.Printf("Failed to login to DSM: [%s]. err: %v\n", dsm.Ip, err)
+				os.Exit(1)
+			}
+			err := dsm.RecordCreate(dnsRecord)
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+			dsm.Logout()
+		}
+
+		fmt.Printf("Success, RecordCreate()\n")
+	},
+}
+
+var cmdRecordDelete = &cobra.Command{
+	Use:   "record-delete",
+	Short: "delete record",
+	Args:  cobra.MinimumNArgs(5),
+	Run: func(cmd *cobra.Command, args []string) {
+		dsms, err := ListDsms(DsmId)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
+		var dnsRecord webapi.DNSRecord
+
+		dnsRecord.ZoneName = args[0]
+		dnsRecord.DomainName = args[0]
+		dnsRecord.Record = args[1]
+		dnsRecord.TTL = args[2]
+		dnsRecord.Type = args[3]
+		dnsRecord.Value = args[4]
+
+		for _, dsm := range dsms {
+			if err := dsm.Login(); err != nil {
+				fmt.Printf("Failed to login to DSM: [%s]. err: %v\n", dsm.Ip, err)
+				os.Exit(1)
+			}
+			err := dsm.RecordDelete(dnsRecord)
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+			dsm.Logout()
+		}
+
+		fmt.Printf("Success, RecordDelete()\n")
+	},
+}
+
+var cmdRecordFind = &cobra.Command{
+	Use:   "record-find",
+	Short: "find record",
+	Args:  cobra.MinimumNArgs(2),
+	Run: func(cmd *cobra.Command, args []string) {
+		dsms, err := ListDsms(DsmId)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
+		var dnsRecord webapi.DNSRecord
+
+		dnsRecord.ZoneName = args[0]
+		dnsRecord.DomainName = args[0]
+		dnsRecord.Record = args[1]
+
+		for _, dsm := range dsms {
+			if err := dsm.Login(); err != nil {
+				fmt.Printf("Failed to login to DSM: [%s]. err: %v\n", dsm.Ip, err)
+				os.Exit(1)
+			}
+			record, err := dsm.RecordFind(dnsRecord, "master")
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+			dsm.Logout()
+			for _, r := range record {
+				fmt.Printf("%v\n", r)
+			}
+		}
+
+		fmt.Printf("Success, RecordFind()\n")
+	},
+}
+
 func init() {
 	cmdDNS.AddCommand(cmdDNSList)
 	cmdDNS.AddCommand(cmdZoneList)
+	cmdDNS.AddCommand(cmdRecordCreate)
+	cmdDNS.AddCommand(cmdRecordDelete)
+	cmdDNS.AddCommand(cmdRecordFind)
 }

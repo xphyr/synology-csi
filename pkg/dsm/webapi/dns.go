@@ -16,8 +16,8 @@ type DNSRecord struct {
 	ZoneName   string `json:"zone_name"`   // required always the same as domain_name
 	DomainName string `json:"domain_name"` // required always the same as zone_name
 	Record     string `json:"rr_owner"`    // fully qualified domain name
-	TTL        string `json:"rr_ttl"`      // time to live for record
 	Type       string `json:"rr_type"`     // type of record A,TXT,CNAME
+	TTL        string `json:"rr_ttl"`      // time to live for record
 	Value      string `json:"rr_info"`     // value for the record
 	FullRecord string `json:"full_record"`
 }
@@ -31,6 +31,8 @@ type ZoneRecord struct {
 	ZoneType    string `json:"zone_type"`
 }
 
+// RecordCreate creates a new DNS record
+// dnsRecord.Record MUST end with a dot (.) or it will be prepended to the zone name by the Synology
 func (dsm *DSM) RecordCreate(dnsRecord DNSRecord) error {
 	params := url.Values{}
 	params.Add("api", "SYNO.DNSServer.Zone.Record")
@@ -50,37 +52,75 @@ func (dsm *DSM) RecordCreate(dnsRecord DNSRecord) error {
 		fmt.Printf("The error was: %s, the response was %s\n", err, resp)
 		return err
 	}
+	fmt.Println("Record created successfully.")
+	fmt.Println(params.Encode())
 	fmt.Println(resp)
 
 	return nil
 
 }
 
+// RecordDelete deletes a DNS record
+// dnsRecord.Record MUST end with a dot (.) if it is fully qualified
 func (dsm *DSM) RecordDelete(dnsRecord DNSRecord) error {
-	params := url.Values{}
-	params.Add("api", "SYNO.DNSServer.Zone.Record")
-	params.Add("method", "delete")
-	params.Add("version", "1")
+	// The Synology API for DNS record deletion expects the full record to be passed to it
+	// the value of dnsRecord.fullRecord changes, but I am not sure why
+	// in order to make sure that we find the right version, we will need to do a search of all existing records, and then compare
+	// to the one we want to delete EXCLUDING the fullRecord field
+	// we can then delete that record if we find a match
 
-	jsonData, err := json.Marshal(dnsRecord)
+	existingRecords, err := dsm.RecordFind(dnsRecord, "master")
+	fmt.Printf("Found existing record: %v\n", existingRecords)
+
 	if err != nil {
-		fmt.Println("error")
-	}
-
-	// The API expects an array of records to delete, even if it's just one.
-	jsonData = []byte("[" + string(jsonData) + "]")
-	params.Add("items", string(jsonData))
-
-	resp, err := dsm.sendRequest("", &struct{}{}, params, "webapi/entry.cgi")
-	if err != nil {
-		fmt.Println("There was an error.")
-		fmt.Printf("The Params were: %s", params.Encode())
-		fmt.Printf("The error was: %s, the response was %s\n", err, resp)
 		return err
 	}
-	fmt.Println(resp)
 
+	deletedRecords := 0
+
+	for _, record := range existingRecords {
+		if compareRecords(record, dnsRecord) {
+			params := url.Values{}
+			params.Add("api", "SYNO.DNSServer.Zone.Record")
+			params.Add("method", "delete")
+			params.Add("version", "1")
+
+			jsonData, err := json.Marshal(record)
+			if err != nil {
+				fmt.Println("error")
+				return err
+			}
+
+			// The API expects an array of records to delete, even if it's just one.
+			jsonData = []byte("[" + string(jsonData) + "]")
+			params.Add("items", string(jsonData))
+
+			resp, err := dsm.sendRequest("", &struct{}{}, params, "webapi/entry.cgi")
+			if err != nil {
+				fmt.Println("There was an error.")
+				fmt.Printf("The Params were: %s\n", params.Encode())
+				fmt.Printf("The error was: %s, the response was %s\n", err, resp)
+				return err
+			}
+			deletedRecords++
+			fmt.Println("Record deleted successfully.")
+			fmt.Println(params.Encode())
+			fmt.Println(resp)
+		}
+	}
+	if deletedRecords == 0 {
+		return fmt.Errorf("no matching records found to delete")
+	}
 	return nil
+}
+
+func compareRecords(r1, r2 DNSRecord) bool {
+	return r1.ZoneName == r2.ZoneName &&
+		r1.DomainName == r2.DomainName &&
+		r1.Record == r2.Record &&
+		r1.Type == r2.Type &&
+		r1.TTL == r2.TTL &&
+		r1.Value == r2.Value
 }
 
 /*
@@ -157,4 +197,51 @@ func (dsm *DSM) ZoneList() ([]ZoneRecord, error) {
 		return nil, fmt.Errorf("failed to assert response to %T", &ZoneRecords{})
 	}
 	return dNSRecords.Record, nil
+}
+
+func (dsm *DSM) RecordFind(dnsRecord DNSRecord, zoneType string) ([]DNSRecord, error) {
+
+	type DNSRecords struct {
+		Record []DNSRecord `json:"items"`
+	}
+
+	var allDNSRecords []DNSRecord
+
+	params := url.Values{}
+	params.Add("api", "SYNO.DNSServer.Zone.Record")
+	params.Add("method", "list")
+	params.Add("version", "1")
+	params.Add("offset", "0")
+	params.Add("limit", "50")
+	params.Add("action", "find")
+	params.Add("filterString", dnsRecord.Record)
+	params.Add("sort_by", "rr_owner")
+	params.Add("sort_direction", "ASC")
+	params.Add("filter_by", dnsRecord.Record)
+	params.Add("zone_name", dnsRecord.ZoneName)
+	params.Add("domain_name", dnsRecord.DomainName)
+	params.Add("zone_type", zoneType)
+
+	resp, err := dsm.sendRequest("", &DNSRecords{}, params, "webapi/entry.cgi")
+	if err != nil {
+		fmt.Println("There was an error.")
+		fmt.Printf("The Params were: %s", params.Encode())
+		fmt.Printf("The error was: %s, the response was %s\n", err, resp)
+		return nil, errCodeMapping(resp.ErrorCode, err)
+	}
+
+	dNSRecords, ok := resp.Data.(*DNSRecords)
+	if !ok {
+		return nil, fmt.Errorf("failed to assert response to %T", &DNSRecords{})
+	}
+	allDNSRecords = append(allDNSRecords, dNSRecords.Record...)
+
+	// OK this is so dumb but the Synology API doesn't return the full record in the find or list methods
+	// so we have to take the response, and fill in the rest of the missing details
+	for i := range allDNSRecords {
+		allDNSRecords[i].ZoneName = dnsRecord.ZoneName
+		allDNSRecords[i].DomainName = dnsRecord.DomainName
+	}
+	return allDNSRecords, nil
+
 }
