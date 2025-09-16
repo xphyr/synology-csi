@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/url"
+	"strconv"
 )
 
 type DNSRecord struct {
@@ -35,12 +36,12 @@ func (dsm *DSM) RecordCreate(dnsRecord DNSRecord) error {
 	params.Add("api", "SYNO.DNSServer.Zone.Record")
 	params.Add("method", "create")
 	params.Add("version", "1")
-	params.Add("zone_name", dnsRecord.ZoneName)
-	params.Add("domain_name", dnsRecord.DomainName)
-	params.Add("rr_owner", dnsRecord.Record)
-	params.Add("rr_ttl", dnsRecord.TTL)
-	params.Add("rr_type", dnsRecord.Type)
-	params.Add("rr_info", dnsRecord.Value)
+	params.Add("zone_name", strconv.Quote(dnsRecord.ZoneName))
+	params.Add("domain_name", strconv.Quote(dnsRecord.DomainName))
+	params.Add("rr_owner", strconv.Quote(dnsRecord.Record))
+	params.Add("rr_ttl", strconv.Quote(dnsRecord.TTL))
+	params.Add("rr_type", strconv.Quote(dnsRecord.Type))
+	params.Add("rr_info", strconv.Quote(dnsRecord.Value))
 
 	resp, err := dsm.sendRequest("", &struct{}{}, params, "webapi/entry.cgi")
 	if err != nil {
@@ -65,6 +66,9 @@ func (dsm *DSM) RecordDelete(dnsRecord DNSRecord) error {
 	if err != nil {
 		fmt.Println("error")
 	}
+
+	// The API expects an array of records to delete, even if it's just one.
+	jsonData = []byte("[" + string(jsonData) + "]")
 	params.Add("items", string(jsonData))
 
 	resp, err := dsm.sendRequest("", &struct{}{}, params, "webapi/entry.cgi")
