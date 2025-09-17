@@ -10,6 +10,8 @@ import (
 	"fmt"
 	"net/url"
 	"strconv"
+
+	log "github.com/sirupsen/logrus"
 )
 
 type DNSRecord struct {
@@ -47,14 +49,14 @@ func (dsm *DSM) RecordCreate(dnsRecord DNSRecord) error {
 
 	resp, err := dsm.sendRequest("", &struct{}{}, params, "webapi/entry.cgi")
 	if err != nil {
-		fmt.Println("There was an error.")
-		fmt.Printf("The Params were: %s", params.Encode())
-		fmt.Printf("The error was: %s, the response was %s\n", err, resp)
+		log.Error("There was an error.")
+		log.Debugf("The Params were: %s", params.Encode())
+		log.Errorf("The error was: %s, the response was %s\n", err, resp)
 		return err
 	}
-	fmt.Println("Record created successfully.")
-	fmt.Println(params.Encode())
-	fmt.Println(resp)
+	log.Infof("Record %s created successfully.", dnsRecord.Record)
+	log.Debug(params.Encode())
+	log.Debug(resp)
 
 	return nil
 
@@ -70,7 +72,7 @@ func (dsm *DSM) RecordDelete(dnsRecord DNSRecord) error {
 	// we can then delete that record if we find a match
 
 	existingRecords, err := dsm.RecordFind(dnsRecord, "master")
-	fmt.Printf("Found existing record: %v\n", existingRecords)
+	log.Infof("Found existing record: %v\n", existingRecords)
 
 	if err != nil {
 		return err
@@ -87,7 +89,7 @@ func (dsm *DSM) RecordDelete(dnsRecord DNSRecord) error {
 
 			jsonData, err := json.Marshal(record)
 			if err != nil {
-				fmt.Println("error")
+				log.Error("Error marshaling record to JSON")
 				return err
 			}
 
@@ -97,15 +99,15 @@ func (dsm *DSM) RecordDelete(dnsRecord DNSRecord) error {
 
 			resp, err := dsm.sendRequest("", &struct{}{}, params, "webapi/entry.cgi")
 			if err != nil {
-				fmt.Println("There was an error.")
-				fmt.Printf("The Params were: %s\n", params.Encode())
-				fmt.Printf("The error was: %s, the response was %s\n", err, resp)
+				log.Error("There was an error.")
+				log.Debugf("The Params were: %s\n", params.Encode())
+				log.Errorf("The error was: %s, the response was %s\n", err, resp)
 				return err
 			}
 			deletedRecords++
-			fmt.Println("Record deleted successfully.")
-			fmt.Println(params.Encode())
-			fmt.Println(resp)
+			log.Infof("Record %s deleted successfully.", record.Record)
+			log.Debug(params.Encode())
+			log.Debug(resp)
 		}
 	}
 	if deletedRecords == 0 {
@@ -158,9 +160,9 @@ func (dsm *DSM) RecordList(zoneName []string, zoneType string) ([]DNSRecord, err
 
 		resp, err := dsm.sendRequest("", &DNSRecords{}, params, "webapi/entry.cgi")
 		if err != nil {
-			fmt.Println("There was an error.")
-			fmt.Printf("The Params were: %s", params.Encode())
-			fmt.Printf("The error was: %s, the response was %s\n", err, resp)
+			log.Error("There was an error.")
+			log.Debugf("The Params were: %s", params.Encode())
+			log.Errorf("The error was: %s, the response was %s\n", err, resp)
 			return nil, errCodeMapping(resp.ErrorCode, err)
 		}
 
@@ -186,11 +188,11 @@ func (dsm *DSM) ZoneList() ([]ZoneRecord, error) {
 
 	resp, err := dsm.sendRequest("", &ZoneRecords{}, params, "webapi/entry.cgi")
 	if err != nil {
-		fmt.Println("There was an error.")
-		fmt.Printf("The error was: %s, the response was %s\n", err, resp)
+		log.Error("There was an error.")
+		log.Errorf("The error was: %s, the response was %s\n", err, resp)
 		return nil, errCodeMapping(resp.ErrorCode, err)
 	}
-	fmt.Println(resp)
+	log.Debug(resp)
 
 	dNSRecords, ok := resp.Data.(*ZoneRecords)
 	if !ok {
@@ -224,9 +226,9 @@ func (dsm *DSM) RecordFind(dnsRecord DNSRecord, zoneType string) ([]DNSRecord, e
 
 	resp, err := dsm.sendRequest("", &DNSRecords{}, params, "webapi/entry.cgi")
 	if err != nil {
-		fmt.Println("There was an error.")
-		fmt.Printf("The Params were: %s", params.Encode())
-		fmt.Printf("The error was: %s, the response was %s\n", err, resp)
+		log.Error("There was an error.")
+		log.Debugf("The Params were: %s", params.Encode())
+		log.Errorf("The error was: %s, the response was %s\n", err, resp)
 		return nil, errCodeMapping(resp.ErrorCode, err)
 	}
 
