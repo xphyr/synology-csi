@@ -150,6 +150,11 @@ func (service *DsmService) createSMBorNFSVolumeByDsm(dsm *webapi.DSM, spec *mode
 		return nil, status.Errorf(codes.InvalidArgument, "%s", fmt.Sprintf("Location: %s with ext4 fstype was not supported for creating smb/nfs protocol's K8s volume", spec.Location))
 	}
 
+	// 2.5 Share description can not be more than 64 characters
+	if len(spec.LunDescription) > 64 {
+		spec.LunDescription = spec.LunDescription[:64]
+	}
+
 	// 3. Create Share
 	sizeInMB := utils.BytesToMBCeil(spec.Size)
 	shareSpec := webapi.ShareCreateSpec{

@@ -47,3 +47,7 @@ This release introduces potentially **BREAKING CHANGES** If you are converting f
   - Updated the synocli to list out hosts. 
   - Added additional functionality to the webapi module for use in another project.
   - Updated the PersistentVolume VolumeAttributes field to include the LUN UUID
+
+# v1.4.5.
+  - Added additional functionality to the webapi to work with DNS records for another project
+  - Fixed a bug with NFS share creation. Description can be only 64 characters long MAX otherwise the API throws an error. This only effects NFS/SMB shares
