@@ -1,12 +1,18 @@
 # Synology CSI Driver for Kubernetes
 
-The official [Container Storage Interface](https://github.com/container-storage-interface) driver for Synology NAS.
+The **NOT** official [Container Storage Interface](https://github.com/container-storage-interface) driver for Synology NAS.
+
+The [Official Synology CSI Driver](https://github.com/xphyr/synology-csi), has not been updated, or seen any activity in about 1 year. I am going to try and pull together all the existing PRs that make sense into this code base, and then start to address the items on my [TODO](./TODO.md) list. I am not in any way affiliated with Synology, however I use the Synology CSI driver in my home lab. 
+
+There are over 134 forks of the upstream driver, as well as 8 PRs and over 40 Issues that have been filed but, have gone unanswered. I am hoping that maybe a few of us can come together and create a "community" version of this driver that is updated more frequently and has additional features added to it over time. 
+
+Please feel free to reach out and create an [Issue](https://github.com/xphyr/synology-csi/issues) or a [Pull request](https://github.com/xphyr/synology-csi/pulls) if you would like to contribute and assist with this little project.
 
 ### Container Images & Kubernetes Compatibility
 Driver Name: csi.san.synology.com
-| Driver Version                                                                   | Image                                                                 | Supported K8s Version |
-| -------------------------------------------------------------------------------- | --------------------------------------------------------------------- | --------------------- |
-| [v1.2.1](https://github.com/SynologyOpenSource/synology-csi/tree/release-v1.2.1) | [synology-csi:v1.2.1](https://hub.docker.com/r/synology/synology-csi) | 1.20+                 |
+| Driver Version                                              | Image                                                                                   | Supported K8s Version |
+| ----------------------------------------------------------- | --------------------------------------------------------------------------------------- | --------------------- |
+| [v1.4.5](https://github.com/xphyr/synology-csi/tree/v1.4.5) | [synology-csi:1.4.5](https://github.com/xphyr/synology-csi/pkgs/container/synology-csi) | 1.25+                 |
 
 
 
@@ -18,7 +24,7 @@ The Synology CSI driver supports:
 
 ## Installation
 ### Prerequisites
-- Kubernetes versions 1.19 or above
+- Kubernetes versions 1.25 or above
 - Synology NAS running:
     * DSM 7.0 or above
     * DSM UC 3.1 or above
@@ -31,7 +37,7 @@ The Synology CSI driver supports:
 3. After you complete the steps below, the *full* deployment of the CSI driver, including the snapshotter, will be installed. If you don’t need the **Snapshot** feature, you can install the *basic* deployment of the CSI driver instead.
 
 ### Procedure
-1. Clone the git repository. `git clone https://github.com/SynologyOpenSource/synology-csi.git`
+1. Clone the git repository. `git clone https://github.com/xphyr/synology-csi.git`
 2. Enter the directory. `cd synology-csi`
 3. Copy the client-info-template.yml file. `cp config/client-info-template.yml config/client-info.yml`
 4. Edit `config/client-info.yml` to configure the connection information for DSM. You can specify **one or more** storage systems on which the CSI volumes will be created. Change the following parameters as needed:
@@ -48,19 +54,24 @@ The Synology CSI driver supports:
         - *basic*:
             `./scripts/deploy.sh build && ./scripts/deploy.sh install --basic`
 
-        If you don’t need to build the driver locally and want to pull the [image](https://hub.docker.com/r/synology/synology-csi) from Docker instead, run the command as instructed below.
+        If you don’t need to build the driver locally and want to pull the [image](https://github.com/xphyr/synology-csi/pkgs/container/synology-csi) from GHCR.ioinstead, run the command as instructed below.
 
         - *full*:
             `./scripts/deploy.sh install --all`
         - *basic*:
             `./scripts/deploy.sh install --basic`
-
+        - *openshift*:
+            `./scripts/deploy.sh install --openshift`
+        - *talos*:
+            `./scripts/deploy.sh install --talos`
         Running the bash script will:
         - Create a namespace named "`synology-csi`". This is where the driver will be installed.
         - Create a secret named "`client-info-secret`" using the credentials from the client-info.yml you configured in the previous step.
         - Build a local image and deploy the CSI driver.
         - Create a **default** storage class named "`synology-iscsi-storage`" that uses the "`Retain`" policy.
         - Create a volume snapshot class named "`synology-snapshotclass`" that uses the "`Delete`" policy. (*Full* deployment only)
+        - *optionally* install SecurityContextConstraint for OpenShift cluster
+        - *optionally* patch the node daemonset to support 'talos' kubernetes clusters
     * **HELM** (Local Development)
         1. `kubectl create ns synology-csi; kubectl label ns synology-csi pod-security.kubernetes.io/enforce=privileged --overwrite`
         2. `kubectl create secret -n synology-csi generic client-info-secret --from-file=./config/client-info.yml`
@@ -90,8 +101,11 @@ Create a secret to specify the storage system address and credentials (username 
         https: true
         username: <username>
         password: <password>
+        clientsubnetoverride: "subnet in CIDR notation"
       ```
     The `clients` field can contain more than one Synology NAS. Seperate them with a prefix `-`.
+
+    > **NOTE:** `clientsubnetoverride` allows the use of a dedicated network for NFS traffic on your k8s nodes. If you have a dedicated network for storage access on your nodes, you will need to add a subnet definition here. The configuration should be in CIDR notation eg. "172.16.20.0/24". If you do not have a dedicated Storage network, you do NOT need to set this option.
 
 2. Create the secret using the following command (usually done by deploy.sh):
     ```!
@@ -178,25 +192,33 @@ Create and apply StorageClasses with the properties you want.
 
 2. Configure the StorageClass properties by assigning the parameters in the table. You can also leave blank if you don’t have a preference:
 
-    | Name                                             | Type   | Description                                                                                                                                                        | Default | Supported protocols |
-    | ------------------------------------------------ | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------- | ------------------- |
-    | *dsm*                                            | string | The IPv4 address of your DSM, which must be included in the `client-info.yml` for the CSI driver to log in to DSM                                                  | -       | iSCSI, SMB, NFS     |
-    | *location*                                       | string | The location (/volume1, /volume2, ...) on DSM where the LUN for *PersistentVolume* will be created                                                                 | -       | iSCSI, SMB, NFS     |
-    | *fsType*                                         | string | The formatting file system of the *PersistentVolumes* when you mount them on the pods. This parameter only works with iSCSI. For SMB, the fsType is always ‘cifs‘. | 'ext4'  | iSCSI               |
-    | *protocol*                                       | string | The storage backend protocol. Enter ‘iscsi’ to create LUNs, or ‘smb‘ or 'nfs' to create shared folders on DSM.                                                     | 'iscsi' | iSCSI, SMB, NFS     |
-    | *formatOptions*                                  | string | Additional options/arguments passed to `mkfs.*` command. See a linux manual that corresponds with your FS of choice.                                               | -       | iSCSI               |
-    | *enableSpaceReclamation*                         | string | Enables space reclamation for Thin Provisioned Btrfs LUNs to improve storage efficiency. May impact performance and space display.                                 | 'false' | iSCSI               |
-    | *enableFuaSyncCache*                             | string | Enables FUA and Sync Cache SCSI commands for LUNs.                                                                                                                 | 'false' | iSCSI               |
-    | *csi.storage.k8s.io/node-stage-secret-name*      | string | The name of node-stage-secret. Required if DSM shared folder is accessed via SMB.                                                                                  | -       | SMB                 |
-    | *csi.storage.k8s.io/node-stage-secret-namespace* | string | The namespace of node-stage-secret. Required if DSM shared folder is accessed via SMB.                                                                             | -       | SMB                 |
-    | *mountPermissions*                               | string | Mounted folder permissions. If set as non-zero, driver will perform `chmod` after mount                                                                            | '0750'  | NFS                 |
+| Name                                             | Type   | Description                                                                                                                                                        | Default | Supported protocols |
+| ------------------------------------------------ | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------- | ------------------- |
+| *dsm*                                            | string | The IPv4 address of your DSM, which must be included in the `client-info.yml` for the CSI driver to log in to DSM                                                  | -       | iSCSI, SMB, NFS     |
+| *location*                                       | string | The location (/volume1, /volume2, ...) on DSM where the LUN for *PersistentVolume* will be created                                                                 | -       | iSCSI, SMB, NFS     |
+| *fsType*                                         | string | The formatting file system of the *PersistentVolumes* when you mount them on the pods. This parameter only works with iSCSI. For SMB, the fsType is always ‘cifs‘. | 'ext4'  | iSCSI               |
+| *protocol*                                       | string | The storage backend protocol. Enter ‘iscsi’ to create LUNs, or ‘smb‘ or 'nfs' to create shared folders on DSM.                                                     | 'iscsi' | iSCSI, SMB, NFS     |
+| *formatOptions*                                  | string | Additional options/arguments passed to `mkfs.*` command. See a linux manual that corresponds with your FS of choice.                                               | -       | iSCSI               |
+| *protocol*                                       | string | The storage backend protocol. Enter ‘iscsi’ to create LUNs or ‘smb‘ to create shared folders on DSM.                                                               | 'iscsi' | iSCSI, SMB          |
+| *formatOptions*                                  | string | Additional options/arguments passed to `mkfs.*` command. See a linux manual that corresponds with your FS of choice.                                               | -       | iSCSI               |
+| *devAttribs*                                     | string | Additional device attributes passed to LUN create API.                                                                                                             | -       | iSCSI               |
+| *enableSpaceReclamation*                         | string | Enables space reclamation for Thin Provisioned Btrfs LUNs to improve storage efficiency. May impact performance and space display.                                 | 'false' | iSCSI               |
+| *enableFuaSyncCache*                             | string | Enables FUA and Sync Cache SCSI commands for LUNs.                                                                                                                 | 'false' | iSCSI               |
+| *csi.storage.k8s.io/node-stage-secret-name*      | string | The name of node-stage-secret. Required if DSM shared folder is accessed via SMB.                                                                                  | -       | SMB                 |
+| *csi.storage.k8s.io/node-stage-secret-namespace* | string | The namespace of node-stage-secret. Required if DSM shared folder is accessed via SMB.                                                                             | -       | SMB                 |
+| *mountPermissions*                               | string | Mounted folder permissions. If set as non-zero, driver will perform `chmod` after mount                                                                            | '0750'  | NFS                 |
+| *enableRecyclebin*                               | string | enable the recycleBin for NFS and SMB shares | false | NFS,SMB |
+| *recycleBinAdminOnly*                            | string | configure recycleBin for access by Admins only | false | NFS,SMB |
+| *clusterName*                                    | string | Adds a cluster name to the description of the LUN or share created. This will show up in the description as `<clusterName>/<namespace>/<pvcName>`. | - | iSCSI,NFS,SMB |
 
     **Notice**
 
     - If you leave the parameter *location* blank, the CSI driver will choose a volume on DSM with available storage to create the volumes.
     - All iSCSI volumes created by the CSI driver are Thin Provisioned LUNs on DSM. This will allow you to take snapshots of them.
+    - `devAttribs` is string of parameters separated with `,`. If the parameter name ends with `-`, the `-` sign is stripped and parameter is explicitly set to `Enabled: 0`.
+    - Unless you are using a secondary Storage Network on your nodes, you should NOT define an nfsACLOverride. 
 
-3. Apply the YAML files to the Kubernetes cluster.
+1. Apply the YAML files to the Kubernetes cluster.
 
     ```
     kubectl apply -f <storageclass_yaml>
@@ -208,7 +230,7 @@ Create and apply VolumeSnapshotClasses with the properties you want.
 1. Create YAML files using the one at `deploy/kubernetes/<k8s version>/snapshotter/volume-snapshot-class.yml` as the example, whose content is as below:
 
     ```
-    apiVersion: snapshot.storage.k8s.io/v1beta1    # v1 for kubernetes v1.20 and above
+    apiVersion: snapshot.storage.k8s.io/v1beta1    # v1 for kubernetes v1.25 and above
     kind: VolumeSnapshotClass
     metadata:
       name: synology-snapshotclass
@@ -236,7 +258,7 @@ Create and apply VolumeSnapshotClasses with the properties you want.
 
 ## Building & Manually Installing
 
-By default, the CSI driver will pull the latest [image](https://hub.docker.com/r/synology/synology-csi) from Docker Hub.
+By default, the CSI driver will pull the latest [image](https://github.com/xphyr/synology-csi/pkgs/container/synology-csi) from GHCR.io.
 
 If you want to use images you built locally for installation, edit all files under `deploy/kubernetes/<k8s version>/`  and make sure `imagePullPolicy: IfNotPresent` is included in every csi-plugin container.
 
@@ -246,6 +268,12 @@ If you want to use images you built locally for installation, edit all files und
 - To run unit tests, execute `make test`.
 - To build a docker image, run `./scripts/deploy.sh build`.
  Afterwards, run `docker images` to check the newly created image.
+
+#### Using GoReleaser
+
+This project uses [GoReleaser](https://goreleaser.com/) to build the multi-arch container files. 
+
+To test: `REPO_OWNER=<usernamehere> goreleaser release --snapshot --clean`
 
 ### Installation
 

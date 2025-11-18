@@ -1,6 +1,6 @@
 #!/bin/bash
-min_support_minor=19
-max_support_minor=20
+min_support_minor=25
+max_support_minor=25
 deploy_k8s_version="v1".$min_support_minor
 
 parse_version(){
@@ -14,7 +14,7 @@ parse_version(){
     fi
 
     case "$minor" in
-        19|20)
+        25)
             deploy_k8s_version="v1".$minor
             ;;
         *)

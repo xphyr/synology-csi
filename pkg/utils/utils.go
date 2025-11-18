@@ -50,7 +50,6 @@ func StringToBoolean(value string) bool {
 	value = strings.ToLower(strings.TrimSpace(value))
 	return value == "yes" || value == "true" || value == "1"
 }
-
 func StringToSlice(value string) []string {
 	return strings.Fields(value)
 }
@@ -76,5 +75,5 @@ func LookupIPv4(name string) ([]string, error) {
 		return retIps, nil
 	}
 
-	return nil, fmt.Errorf("Failed to LookupIPv4 by local resolver for: %s", name)
+	return nil, fmt.Errorf("failed to LookupIPv4 by local resolver for: %s", name)
 }

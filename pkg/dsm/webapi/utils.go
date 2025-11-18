@@ -4,20 +4,21 @@ package webapi
 
 import (
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"net"
 	"strings"
 	"time"
 
-	"github.com/SynologyOpenSource/synology-csi/pkg/utils"
+	log "github.com/sirupsen/logrus"
+
+	"github.com/xphyr/synology-csi/pkg/utils"
 )
 
 func (dsm *DSM) IsUC() bool {
 	dsmSysInfo, err := dsm.DsmSystemInfoGet()
-    if err != nil {
-        log.Errorf("Failed to get DSM[%s] system info", dsm.Ip)
-        return false
-    }
+	if err != nil {
+		log.Errorf("Failed to get DSM[%s] system info", dsm.Ip)
+		return false
+	}
 	return strings.Contains(dsmSysInfo.FirmwareVer, "DSM UC")
 }
 
@@ -31,12 +32,12 @@ func (dsm *DSM) GetAnotherController() (*DSM, error) {
 
 	netListA, err := dsm.NetworkInterfaceList("node0")
 	if err != nil {
-		return nil, fmt.Errorf("Failed to get DSM network list of controller A. %v", err)
+		return nil, fmt.Errorf("failed to get DSM network list of controller A. %v", err)
 	}
 
 	netListB, err := dsm.NetworkInterfaceList("node1")
 	if err != nil {
-		return nil, fmt.Errorf("Failed to get DSM network list of controller B. %v", err)
+		return nil, fmt.Errorf("failed to get DSM network list of controller B. %v", err)
 	}
 
 	ips, err := utils.LookupIPv4(dsm.Ip) // because dsm.Ip may be a domain
@@ -71,14 +72,14 @@ func (dsm *DSM) GetAnotherController() (*DSM, error) {
 				continue
 			}
 
-			if netIf.Status == "connected" && CheckIpReachable(netIf.Ip, anotherDsm.Port){
+			if netIf.Status == "connected" && CheckIpReachable(netIf.Ip, anotherDsm.Port) {
 				anotherDsm.Ip = netIf.Ip
 				return anotherDsm, nil
 			}
 		}
 	}
 
-	return nil, fmt.Errorf("Failed to get reachable network of another controller.")
+	return nil, fmt.Errorf("failed to get reachable network of another controller")
 }
 
 func CheckIpReachable(ip string, port int) bool {
@@ -87,9 +88,5 @@ func CheckIpReachable(ip string, port int) bool {
 
 	_, err := net.DialTimeout("tcp", fmt.Sprintf("%s:%d", ip, port), timeOut)
 
-	if err != nil {
-		return false
-	}
-
-	return true
+	return err == nil
 }

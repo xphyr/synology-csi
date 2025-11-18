@@ -18,10 +18,10 @@ rules:
     verbs: ["get", "list", "watch"]
   - apiGroups: ["snapshot.storage.k8s.io"]
     resources: ["volumesnapshotcontents"]
-    verbs: ["create", "get", "list", "watch", "update", "delete"]
+    verbs: ["create", "get", "list", "watch", "update", "patch", "delete"]
   - apiGroups: ["snapshot.storage.k8s.io"]
     resources: ["volumesnapshotcontents/status"]
-    verbs: ["update"]
+    verbs: ["update", "patch"]
 
 ---
 kind: ClusterRoleBinding
@@ -64,7 +64,7 @@ spec:
             capabilities:
               add: ["SYS_ADMIN"]
             allowPrivilegeEscalation: true
-          image: registry.k8s.io/sig-storage/csi-snapshotter:v3.0.3
+          image: registry.k8s.io/sig-storage/csi-snapshotter:v8.2.1
           args:
             - --v=5
             - --csi-address=$(ADDRESS)
@@ -81,7 +81,7 @@ spec:
             capabilities:
               add: ["SYS_ADMIN"]
             allowPrivilegeEscalation: true
-          image: synology/synology-csi:v1.2.1
+          image: ghcr.io/xphyr/synology-csi:1.4.5
           args:
             - --nodeid=NotUsed
             - --endpoint=$(CSI_ENDPOINT)

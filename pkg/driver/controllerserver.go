@@ -31,9 +31,9 @@ import (
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	"github.com/SynologyOpenSource/synology-csi/pkg/interfaces"
-	"github.com/SynologyOpenSource/synology-csi/pkg/models"
-	"github.com/SynologyOpenSource/synology-csi/pkg/utils"
+	"github.com/xphyr/synology-csi/pkg/interfaces"
+	"github.com/xphyr/synology-csi/pkg/models"
+	"github.com/xphyr/synology-csi/pkg/utils"
 )
 
 type controllerServer struct {
@@ -53,7 +53,8 @@ func getSizeByCapacityRange(capRange *csi.CapacityRange) (int64, error) {
 		return 0, status.Error(codes.InvalidArgument, "Invalid input: limitBytes is smaller than requiredBytes")
 	}
 	if minSize < utils.UNIT_GB {
-		return 0, status.Error(codes.InvalidArgument, "Invalid input: required bytes is smaller than 1G")
+		// since the minSize is smaller than the Synology supports, bump the size up to the minimum required size
+		return 1 * utils.UNIT_GB, nil
 	}
 
 	return int64(minSize), nil
@@ -84,6 +85,20 @@ func parseNfsVesrion(ops []string) string {
 func parseDevAttribs(params map[string]string) (map[string]bool, error) {
 	attribFlags := make(map[string]bool)
 
+	for _, attrib := range strings.Split(params["devAttribs"], ",") {
+		attrib = strings.TrimSpace(attrib)
+		if len(attrib) < 1 {
+			continue
+		}
+		enabled := true
+		if strings.HasSuffix(attrib, "-") {
+			attrib = strings.TrimSuffix(attrib, "-")
+			enabled = false
+		}
+
+		attribFlags[attrib] = enabled
+	}
+
 	if params["enableSpaceReclamation"] != "" {
 		attribFlags["emulate_tpu"] = utils.StringToBoolean(params["enableSpaceReclamation"])
 	}
@@ -101,9 +116,9 @@ func (cs *controllerServer) CreateVolume(ctx context.Context, req *csi.CreateVol
 	volName, volCap := req.GetName(), req.GetVolumeCapabilities()
 	volContentSrc := req.GetVolumeContentSource()
 
-	var srcSnapshotId string = ""
-	var srcVolumeId string = ""
-	var multiSession bool = false
+	var srcSnapshotId = ""
+	var srcVolumeId = ""
+	var multiSession = false
 
 	if err != nil {
 		return nil, err
@@ -124,9 +139,10 @@ func (cs *controllerServer) CreateVolume(ctx context.Context, req *csi.CreateVol
 			return nil, status.Errorf(codes.InvalidArgument, "Invalid volume capability access mode")
 		}
 
-		if accessMode == csi.VolumeCapability_AccessMode_SINGLE_NODE_WRITER {
+		switch accessMode {
+		case csi.VolumeCapability_AccessMode_SINGLE_NODE_WRITER:
 			multiSession = false
-		} else if accessMode == csi.VolumeCapability_AccessMode_MULTI_NODE_MULTI_WRITER {
+		case csi.VolumeCapability_AccessMode_MULTI_NODE_MULTI_WRITER:
 			multiSession = true
 		}
 
@@ -149,7 +165,10 @@ func (cs *controllerServer) CreateVolume(ctx context.Context, req *csi.CreateVol
 
 	isThin := true
 	if params["thin_provisioning"] != "" {
-		isThin = utils.StringToBoolean(params["thin_provisioning"])
+		isThin, err = strconv.ParseBool(params["thin_provisioning"])
+		if err != nil {
+			return nil, status.Errorf(codes.InvalidArgument, "unsupported thin_provisioning setting: %s", params["thin_provisioning"])
+		}
 	}
 
 	protocol := strings.ToLower(params["protocol"])
@@ -166,7 +185,26 @@ func (cs *controllerServer) CreateVolume(ctx context.Context, req *csi.CreateVol
 	// check mountPermissions valid
 	if mountPermissions != "" {
 		if _, err := strconv.ParseUint(mountPermissions, 8, 32); err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, fmt.Sprintf("invalid mountPermissions %s in storage class", mountPermissions))
+			return nil, status.Errorf(codes.InvalidArgument, "invalid mountPermissions %s in storage class", mountPermissions)
+		}
+	}
+
+	// capture recyclebin support for nfs/smb shares
+	// by default we are DISABLING the recyclebin
+	// recyclebin does not fit in the general storage model of Kubernetes
+	enableRecycleBin := false
+	if params["enableRecycleBin"] != "" {
+		enableRecycleBin, err = strconv.ParseBool(params["enableRecycleBin"])
+		if err != nil {
+			return nil, status.Errorf(codes.InvalidArgument, "unsupported recyclebin setting: %s", params["enableRecycleBin"])
+		}
+	}
+	recycleBinAdminOnly := false
+	if params["recycleBinAdminOnly"] != "" && enableRecycleBin {
+		// the recyclebin must be enabled for this option to be valid
+		recycleBinAdminOnly, err = strconv.ParseBool(params["recycleBinAdminOnly"])
+		if err != nil {
+			return nil, status.Errorf(codes.InvalidArgument, "unsupported recyclebinadminonly setting: %s", params["recycleBinAdminOnly"])
 		}
 	}
 
@@ -185,6 +223,10 @@ func (cs *controllerServer) CreateVolume(ctx context.Context, req *csi.CreateVol
 		pvcNamespace := params["csi.storage.k8s.io/pvc/namespace"]
 		pvcName := params["csi.storage.k8s.io/pvc/name"]
 		lunDescription = pvcNamespace + "/" + pvcName
+		// should be able to add cluster name here, so it ends up <clusterName>/pvcNamespace/pvcName
+		if params["clusterName"] != "" {
+			lunDescription = params["clusterName"] + "/" + lunDescription
+		}
 	}
 
 	nfsVer := parseNfsVesrion(mountOptions)
@@ -193,22 +235,24 @@ func (cs *controllerServer) CreateVolume(ctx context.Context, req *csi.CreateVol
 	}
 
 	spec := &models.CreateK8sVolumeSpec{
-		DsmIp:            params["dsm"],
-		K8sVolumeName:    volName,
-		LunName:          models.GenLunName(volName),
-		LunDescription:   lunDescription,
-		ShareName:        models.GenShareName(volName),
-		Location:         params["location"],
-		Size:             sizeInByte,
-		Type:             params["type"],
-		ThinProvisioning: isThin,
-		TargetName:       fmt.Sprintf("%s-%s", models.TargetPrefix, volName),
-		MultipleSession:  multiSession,
-		SourceSnapshotId: srcSnapshotId,
-		SourceVolumeId:   srcVolumeId,
-		Protocol:         protocol,
-		NfsVersion:       nfsVer,
-		DevAttribs:       devAttribs,
+		DsmIp:               params["dsm"],
+		K8sVolumeName:       volName,
+		LunName:             models.GenLunName(volName),
+		LunDescription:      lunDescription,
+		ShareName:           models.GenShareName(volName),
+		Location:            params["location"],
+		Size:                sizeInByte,
+		Type:                params["type"],
+		ThinProvisioning:    isThin,
+		TargetName:          fmt.Sprintf("%s-%s", models.TargetPrefix, volName),
+		MultipleSession:     multiSession,
+		SourceSnapshotId:    srcSnapshotId,
+		SourceVolumeId:      srcVolumeId,
+		Protocol:            protocol,
+		NfsVersion:          nfsVer,
+		DevAttribs:          devAttribs,
+		EnableRecycleBin:    enableRecycleBin,
+		RecycleBinAdminOnly: recycleBinAdminOnly,
 	}
 
 	// idempotency
@@ -242,6 +286,7 @@ func (cs *controllerServer) CreateVolume(ctx context.Context, req *csi.CreateVol
 				"formatOptions":    formatOptions,
 				"mountPermissions": mountPermissions,
 				"baseDir":          k8sVolume.BaseDir,
+				"uuid":             k8sVolume.Lun.Uuid,
 			},
 		},
 	}, nil
@@ -255,7 +300,7 @@ func (cs *controllerServer) DeleteVolume(ctx context.Context, req *csi.DeleteVol
 
 	if err := cs.dsmService.DeleteVolume(volumeId); err != nil {
 		return nil, status.Errorf(codes.Internal,
-			fmt.Sprintf("Failed to DeleteVolume(%s), err: %v", volumeId, err))
+			"%s", fmt.Sprintf("Failed to DeleteVolume(%s), err: %v", volumeId, err))
 	}
 
 	return &csi.DeleteVolumeResponse{}, nil
@@ -297,13 +342,13 @@ func (cs *controllerServer) ListVolumes(ctx context.Context, req *csi.ListVolume
 	startingToken := req.GetStartingToken()
 
 	var entries []*csi.ListVolumesResponse_Entry
-	var nextToken string = ""
+	var nextToken = ""
 
 	if 0 > maxEntries {
 		return nil, status.Error(codes.InvalidArgument, "Max entries can not be negative.")
 	}
 
-	pagingSkip := ("" != startingToken)
+	pagingSkip := (startingToken != "")
 	infos := cs.dsmService.ListVolumes()
 
 	sort.Sort(models.ByVolumeId(infos))
@@ -341,7 +386,7 @@ func (cs *controllerServer) ListVolumes(ctx context.Context, req *csi.ListVolume
 	}
 
 	if pagingSkip {
-		return nil, status.Errorf(codes.Aborted, fmt.Sprintf("Invalid StartingToken(%s)", startingToken))
+		return nil, status.Errorf(codes.Aborted, "%s", fmt.Sprintf("Invalid StartingToken(%s)", startingToken))
 	}
 
 	return &csi.ListVolumesResponse{
@@ -387,6 +432,8 @@ func (cs *controllerServer) ControllerGetCapabilities(ctx context.Context, req *
 }
 
 func (cs *controllerServer) CreateSnapshot(ctx context.Context, req *csi.CreateSnapshotRequest) (*csi.CreateSnapshotResponse, error) {
+	var err error
+
 	srcVolId := req.GetSourceVolumeId()
 	snapshotName := req.GetName() // snapshot-XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
 	params := req.GetParameters()
@@ -399,15 +446,24 @@ func (cs *controllerServer) CreateSnapshot(ctx context.Context, req *csi.CreateS
 		return nil, status.Error(codes.InvalidArgument, "Snapshot name is empty.")
 	}
 
+	isLocked := false
+	if params["is_locked"] != "" {
+		isLocked, err = strconv.ParseBool(params["is_locked"])
+		if err != nil {
+			log.Errorf("failed to parse the is_locked parameter. %s, is not a valid option", params["is_locked"])
+			return nil, err
+		}
+	}
+
 	// idempotency
 	orgSnap := cs.dsmService.GetSnapshotByName(snapshotName)
 	if orgSnap != nil {
 		// already existed
 		if orgSnap.ParentUuid != srcVolId {
-			return nil, status.Errorf(codes.AlreadyExists, fmt.Sprintf("Snapshot [%s] already exists but volume id is incompatible", snapshotName))
+			return nil, status.Errorf(codes.AlreadyExists, "%s", fmt.Sprintf("Snapshot [%s] already exists but volume id is incompatible", snapshotName))
 		}
 		if orgSnap.CreateTime < 0 {
-			return nil, status.Errorf(codes.Internal, fmt.Sprintf("Bad create time: %v", orgSnap.CreateTime))
+			return nil, status.Errorf(codes.Internal, "%s", fmt.Sprintf("Bad create time: %v", orgSnap.CreateTime))
 		}
 		return &csi.CreateSnapshotResponse{
 			Snapshot: &csi.Snapshot{
@@ -426,12 +482,12 @@ func (cs *controllerServer) CreateSnapshot(ctx context.Context, req *csi.CreateS
 		SnapshotName: snapshotName,
 		Description:  params["description"],
 		TakenBy:      models.K8sCsiName,
-		IsLocked:     utils.StringToBoolean(params["is_locked"]),
+		IsLocked:     isLocked,
 	}
 
 	snapshot, err := cs.dsmService.CreateSnapshot(spec)
 	if err != nil {
-		log.Errorf("Failed to CreateSnapshot, snapshotName: %s, srcVolId: %s, err: %v", snapshotName, srcVolId, err)
+		log.Errorf("failed to CreateSnapshot, snapshotName: %s, srcVolId: %s, err: %v", snapshotName, srcVolId, err)
 		return nil, err
 	}
 
@@ -455,7 +511,7 @@ func (cs *controllerServer) DeleteSnapshot(ctx context.Context, req *csi.DeleteS
 
 	err := cs.dsmService.DeleteSnapshot(snapshotId)
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, fmt.Sprintf("Failed to DeleteSnapshot(%s), err: %v", snapshotId, err))
+		return nil, status.Errorf(codes.Internal, "%s", fmt.Sprintf("Failed to DeleteSnapshot(%s), err: %v", snapshotId, err))
 	}
 
 	return &csi.DeleteSnapshotResponse{}, nil
@@ -468,13 +524,13 @@ func (cs *controllerServer) ListSnapshots(ctx context.Context, req *csi.ListSnap
 	startingToken := req.GetStartingToken()
 
 	var entries []*csi.ListSnapshotsResponse_Entry
-	var nextToken string = ""
+	var nextToken = ""
 
 	if 0 > maxEntries {
 		return nil, status.Error(codes.InvalidArgument, "Max entries can not be negative.")
 	}
 
-	pagingSkip := ("" != startingToken)
+	pagingSkip := (startingToken != "")
 	var snapshots []*models.K8sSnapshotRespSpec
 
 	if srcVolId != "" {
@@ -517,7 +573,7 @@ func (cs *controllerServer) ListSnapshots(ctx context.Context, req *csi.ListSnap
 	}
 
 	if pagingSkip {
-		return nil, status.Errorf(codes.Aborted, fmt.Sprintf("Invalid StartingToken(%s)", startingToken))
+		return nil, status.Errorf(codes.Aborted, "%s", fmt.Sprintf("Invalid StartingToken(%s)", startingToken))
 	}
 
 	return &csi.ListSnapshotsResponse{

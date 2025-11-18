@@ -7,8 +7,9 @@ import (
 	"fmt"
 	"os"
 	"text/tabwriter"
+
 	"github.com/spf13/cobra"
-	"github.com/SynologyOpenSource/synology-csi/pkg/dsm/webapi"
+	"github.com/xphyr/synology-csi/pkg/dsm/webapi"
 )
 
 var cmdLun = &cobra.Command{
@@ -74,7 +75,7 @@ var cmdLunList = &cobra.Command{
 }
 
 func lunTypeToString(lunType int) string {
-	switch (lunType) {
+	switch lunType {
 	case 3:
 		return "FILE"
 	case 15:

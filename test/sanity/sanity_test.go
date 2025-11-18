@@ -2,39 +2,38 @@ package sanitytest
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"testing"
 
 	sanity "github.com/kubernetes-csi/csi-test/v4/pkg/sanity"
 
-	"github.com/SynologyOpenSource/synology-csi/pkg/driver"
-	"github.com/SynologyOpenSource/synology-csi/pkg/dsm/common"
-	"github.com/SynologyOpenSource/synology-csi/pkg/dsm/service"
-	"github.com/SynologyOpenSource/synology-csi/pkg/utils/hostexec"
+	"github.com/xphyr/synology-csi/pkg/driver"
+	"github.com/xphyr/synology-csi/pkg/dsm/common"
+	"github.com/xphyr/synology-csi/pkg/dsm/service"
+	"github.com/xphyr/synology-csi/pkg/utils/hostexec"
 )
 
 const (
-	ConfigPath      = "./../../config/client-info.yml"
+	ConfigPath      = "./../../config/client-info-template.yml"
 	SecretsFilePath = "./sanity-test-secret-file.yaml"
 )
 
 func TestSanity(t *testing.T) {
 	nodeID := "CSINode"
 
-	endpointFile, err := ioutil.TempFile("", "csi-gcs.*.sock")
+	endpointFile, err := os.CreateTemp("", "csi-gcs.*.sock")
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer os.Remove(endpointFile.Name())
 
-	stagingPath, err := ioutil.TempDir("", "csi-gcs-staging")
+	stagingPath, err := os.MkdirTemp("", "csi-gcs-staging")
 	if err != nil {
 		t.Fatal(err)
 	}
 	os.Remove(stagingPath)
 
-	targetPath, err := ioutil.TempDir("", "csi-gcs-target")
+	targetPath, err := os.MkdirTemp("", "csi-gcs-target")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -42,7 +41,7 @@ func TestSanity(t *testing.T) {
 
 	info, err := common.LoadConfig(ConfigPath)
 	if err != nil {
-		t.Fatal(fmt.Sprintf("Failed to read config: %v", err))
+		t.Fatalf("Failed to read config: %v", err)
 	}
 
 	dsmService := service.NewDsmService()
@@ -61,14 +60,14 @@ func TestSanity(t *testing.T) {
 
 	cmdExecutor, err := hostexec.New(nil, "")
 	if err != nil {
-		t.Fatal(fmt.Sprintf("Failed to create command executor: %v\n", err))
+		t.Fatalf("Failed to create command executor: %v\n", err)
 	}
 	tools := driver.NewTools(cmdExecutor)
 
 	endpoint := "unix://" + endpointFile.Name()
 	drv, err := driver.NewControllerAndNodeDriver(nodeID, endpoint, dsmService, tools)
 	if err != nil {
-		t.Fatal(fmt.Sprintf("Failed to create driver: %v\n", err))
+		t.Fatalf("Failed to create driver: %v\n", err)
 	}
 	drv.Activate()
 

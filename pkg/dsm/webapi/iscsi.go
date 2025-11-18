@@ -8,9 +8,10 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+
 	log "github.com/sirupsen/logrus"
-	"github.com/SynologyOpenSource/synology-csi/pkg/logger"
-	"github.com/SynologyOpenSource/synology-csi/pkg/utils"
+	"github.com/xphyr/synology-csi/pkg/logger"
+	"github.com/xphyr/synology-csi/pkg/utils"
 )
 
 type LunInfo struct {
@@ -23,7 +24,17 @@ type LunInfo struct {
 	Status           string         `json:"status"`
 	FlashcacheStatus string         `json:"flashcache_status"`
 	IsActionLocked   bool           `json:"is_action_locked"`
+	DirectIOPattern  int            `json:"direct_io_pattern"`
 	DevAttribs       []LunDevAttrib `json:"dev_attribs"`
+}
+
+type HostInfo struct {
+	Name         string   `json:"name"`
+	Uuid         string   `json:"uuid"`
+	Description  string   `json:"description"`
+	HostID       int      `json:"host_id"`
+	InitiatorIDs []string `json:"initiator_ids"`
+	Protocol     string   `json:"protocol"`
 }
 
 type MappedLun struct {
@@ -53,13 +64,13 @@ type TargetInfo struct {
 }
 
 type SnapshotInfo struct {
-	Name              string             `json:"name"`
-	Uuid              string             `json:"uuid"`
-	ParentUuid        string             `json:"parent_uuid"`
-	Status            string             `json:"status"`
-	TotalSize         int64              `json:"total_size"`
-	CreateTime        int64              `json:"create_time"`
-	RootPath          string             `json:"root_path"`
+	Name       string `json:"name"`
+	Uuid       string `json:"uuid"`
+	ParentUuid string `json:"parent_uuid"`
+	Status     string `json:"status"`
+	TotalSize  int64  `json:"total_size"`
+	CreateTime int64  `json:"create_time"`
+	RootPath   string `json:"root_path"`
 }
 
 type LunDevAttrib struct {
@@ -68,12 +79,13 @@ type LunDevAttrib struct {
 }
 
 type LunCreateSpec struct {
-	Name        string
-	Description string
-	Location    string
-	Size        int64
-	Type        string
-	DevAttribs  []LunDevAttrib
+	Name            string
+	Description     string
+	Location        string
+	Size            int64
+	Type            string
+	DirectIOPattern int
+	DevAttribs      []LunDevAttrib
 }
 
 type LunUpdateSpec struct {
@@ -82,9 +94,9 @@ type LunUpdateSpec struct {
 }
 
 type LunCloneSpec struct {
-	Name            string
-	SrcLunUuid      string
-	Location        string
+	Name       string
+	SrcLunUuid string
+	Location   string
 }
 
 type TargetCreateSpec struct {
@@ -129,7 +141,7 @@ func errCodeMapping(errCode int, oriErr error) error {
 	}
 
 	if errCode > 18990000 {
-		return utils.IscsiDefaultError{errCode}
+		return utils.IscsiDefaultError{ErrCode: errCode}
 	}
 	return oriErr
 }
@@ -153,9 +165,33 @@ func (dsm *DSM) LunList() ([]LunInfo, error) {
 
 	lunInfos, ok := resp.Data.(*LunInfos)
 	if !ok {
-		return nil, fmt.Errorf("Failed to assert response to %T", &LunInfos{})
+		return nil, fmt.Errorf("failed to assert response to %T", &LunInfos{})
 	}
 	return lunInfos.Luns, nil
+}
+
+func (dsm *DSM) HostList() ([]HostInfo, error) {
+	params := url.Values{}
+	params.Add("api", "SYNO.Core.ISCSI.Host")
+	params.Add("method", "list")
+	params.Add("version", "1")
+
+	type HostInfos struct {
+		Hosts []HostInfo `json:"hosts"`
+	}
+
+	resp, err := dsm.sendRequest("", &HostInfos{}, params, "webapi/entry.cgi")
+	if err != nil {
+		return nil, errCodeMapping(resp.ErrorCode, err)
+	}
+
+	fmt.Println(resp)
+
+	hostInfos, ok := resp.Data.(*HostInfos)
+	if !ok {
+		return nil, fmt.Errorf("failed to assert response to %T", &HostInfos{})
+	}
+	return hostInfos.Hosts, nil
 }
 
 func (dsm *DSM) LunCreate(spec LunCreateSpec) (string, error) {
@@ -168,6 +204,7 @@ func (dsm *DSM) LunCreate(spec LunCreateSpec) (string, error) {
 	params.Add("type", spec.Type)
 	params.Add("location", spec.Location)
 	params.Add("description", spec.Description)
+	params.Add("direct_io_pattern", strconv.FormatInt(int64(spec.DirectIOPattern), 10))
 
 	js, err := json.Marshal(spec.DevAttribs)
 	if err != nil {
@@ -186,7 +223,7 @@ func (dsm *DSM) LunCreate(spec LunCreateSpec) (string, error) {
 
 	lunResp, ok := resp.Data.(*LunCreateResp)
 	if !ok {
-		return "", fmt.Errorf("Failed to assert response to %T", &LunCreateResp{})
+		return "", fmt.Errorf("failed to assert response to %T", &LunCreateResp{})
 	}
 
 	return lunResp.Uuid, nil
@@ -249,7 +286,7 @@ func (dsm *DSM) LunClone(spec LunCloneSpec) (string, error) {
 
 	cloneLunResp, ok := resp.Data.(*LunCloneResp)
 	if !ok {
-		return "", fmt.Errorf("Failed to assert response to %T", &LunCloneResp{})
+		return "", fmt.Errorf("failed to assert response to %T", &LunCloneResp{})
 	}
 
 	return cloneLunResp.Uuid, nil
@@ -273,7 +310,7 @@ func (dsm *DSM) TargetList() ([]TargetInfo, error) {
 
 	trgInfos, ok := resp.Data.(*TargetInfos)
 	if !ok {
-		return nil, fmt.Errorf("Failed to assert response to %T", &TargetInfos{})
+		return nil, fmt.Errorf("failed to assert response to %T", &TargetInfos{})
 	}
 	return trgInfos.Targets, nil
 }
@@ -336,7 +373,7 @@ func (dsm *DSM) TargetCreate(spec TargetCreateSpec) (string, error) {
 
 	trgResp, ok := resp.Data.(*TrgCreateResp)
 	if !ok {
-		return "", fmt.Errorf("Failed to assert response to %T", &TrgCreateResp{})
+		return "", fmt.Errorf("failed to assert response to %T", &TrgCreateResp{})
 	}
 
 	return strconv.Itoa(trgResp.TargetId), nil
@@ -346,6 +383,25 @@ func (dsm *DSM) LunMapTarget(targetIds []string, lunUuid string) error {
 	params := url.Values{}
 	params.Add("api", "SYNO.Core.ISCSI.LUN")
 	params.Add("method", "map_target")
+	params.Add("version", "1")
+	params.Add("uuid", strconv.Quote(lunUuid))
+	params.Add("target_ids", fmt.Sprintf("[%s]", strings.Join(targetIds, ",")))
+
+	if logger.WebapiDebug {
+		log.Debugln(params)
+	}
+
+	resp, err := dsm.sendRequest("", &struct{}{}, params, "webapi/entry.cgi")
+	if err != nil {
+		return errCodeMapping(resp.ErrorCode, err)
+	}
+	return nil
+}
+
+func (dsm *DSM) LunUnMapTarget(targetIds []string, lunUuid string) error {
+	params := url.Values{}
+	params.Add("api", "SYNO.Core.ISCSI.LUN")
+	params.Add("method", "unmap_target")
 	params.Add("version", "1")
 	params.Add("uuid", strconv.Quote(lunUuid))
 	params.Add("target_ids", fmt.Sprintf("[%s]", strings.Join(targetIds, ",")))
@@ -412,7 +468,7 @@ func (dsm *DSM) SnapshotCreate(spec SnapshotCreateSpec) (string, error) {
 
 	snapshotResp, ok := resp.Data.(*SnapshotCreateResp)
 	if !ok {
-		return "", fmt.Errorf("Failed to assert response to %T", &SnapshotCreateResp{})
+		return "", fmt.Errorf("failed to assert response to %T", &SnapshotCreateResp{})
 	}
 
 	return snapshotResp.Uuid, nil
@@ -470,7 +526,7 @@ func (dsm *DSM) SnapshotList(lunUuid string) ([]SnapshotInfo, error) {
 
 	infos, ok := resp.Data.(*Infos)
 	if !ok {
-		return nil, fmt.Errorf("Failed to assert response to %T", &Infos{})
+		return nil, fmt.Errorf("failed to assert response to %T", &Infos{})
 	}
 
 	return infos.Snapshots, nil
@@ -496,7 +552,7 @@ func (dsm *DSM) SnapshotClone(spec SnapshotCloneSpec) (string, error) {
 
 	snapshotCloneResp, ok := resp.Data.(*SnapshotCloneResp)
 	if !ok {
-		return "", fmt.Errorf("Failed to assert response to %T", &SnapshotCloneResp{})
+		return "", fmt.Errorf("failed to assert response to %T", &SnapshotCloneResp{})
 	}
 
 	return snapshotCloneResp.Uuid, nil

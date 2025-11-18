@@ -63,7 +63,7 @@ spec:
           securityContext:
             privileged: true
           imagePullPolicy: Always
-          image: registry.k8s.io/sig-storage/csi-node-driver-registrar:v2.3.0
+          image: registry.k8s.io/sig-storage/csi-node-driver-registrar:v2.14.0
           args:
             - --v=5
             - --csi-address=$(ADDRESS)                         # the csi socket path inside the pod
@@ -85,15 +85,18 @@ spec:
         - name: csi-plugin
           securityContext:
             privileged: true
+            allowPrivilegeEscalation: true
+            capabilities:
+              add:
+              - SYS_ADMIN
           imagePullPolicy: IfNotPresent
-          image: synology/synology-csi:v1.2.1
+          image: ghcr.io/xphyr/synology-csi:1.4.5
           args:
             - --nodeid=$(KUBE_NODE_NAME)
             - --endpoint=$(CSI_ENDPOINT)
             - --client-info
             - /etc/synology/client-info.yml
             - --log-level=info
-            - --chroot-dir=/host
           env:
             - name: CSI_ENDPOINT
               value: unix://csi/csi.sock

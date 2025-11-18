@@ -1,0 +1,47 @@
+# To Do list
+
+The following is a list of tasks to bring the Synology CSI driver up to date.
+
+- [x] Update Non-Kubernetes dependencies in build
+- [x] Update logic to handle PV requests that do not meet the minimum allocatable size and bump it up to 1Gb.
+- [x] Merge existing PR Requests from upstream project
+   - [x] [PR85 - Predefined tool paths](https://github.com/SynologyOpenSource/synology-csi/pull/85)
+       - NOTE: Change was pulled in but set to work in old mode. Must override chroot if no chroot is required
+   - [X] [PR75 - Support for devAttribs](https://github.com/SynologyOpenSource/synology-csi/pull/75)
+   - [X] [PR48 - return extra lun info and allow direct_io_pattern](https://github.com/SynologyOpenSource/synology-csi/pull/48)
+- Add basic CI Pipeline
+     - [x] Support Multi-arch (x86_64 and ARM) containers
+       - [x] Use [GoReleaser](https://goreleaser.com/) to handle multiarch builds
+     - [x] Update docs and deployment files to use new ghcr.io repo
+- [x] Address known security vulnerabilities in go modules
+- [x] `gofmt` to apply proper formatting and simplification to the entire codebase
+  - [x] ensure gofmt is applied as part of the build process/ci 
+- [x] apply `go-staticcheck` across all files and address issues.
+- [x] Bump to modern version of go compiler (1.24)
+- [ ] Add support for OpenShift SCC profiles
+  - [x] Add SCC definition file to repo
+  - [x] Update deployment documentation
+  - [x] Update deployment scripts
+  - [ ] Update Helm Chart
+- [x] Update support for Talos Clusters
+  - [x] Add pod security labels to namespace 
+  - [x] Update deployment documentation
+  - [x] Update deployment scripts
+- [X] Add configuration to disable RecycleBin on NFS/SMB shares
+- [X] Add configuration to allow non-admin access to RecycleBin
+- [X] Override NFS mount Permissions for multi-homed servers
+  - [X] Handle in stages. Step one create an option to set client permissions to a CIDR
+    - This is addressed with "ClientSubnetOverride" as part of the client-info.yaml configuration file
+  - [X] Long term, need to identify the IP address used to connect to the device and add that to Topology/CSINode information so we can use this in NFS and iSCSI.
+    - We are capturing the proper IP as `NodeSourceIP` in the dsmwebapi object. We may be able to use this later
+- [ ] Address Issues in upstream project
+- [X] Update code base to use current CSI releases
+- [ ] Update testing framework
+- [X] Remove deprecated function calls in k8s.io/mount-utils
+- [ ] Support Windows
+- [ ] Add marker to share/lun that says what cluster the share/lun is used for if you have multiple clusters
+- [x] Fix Snapshotter functionality
+  - [x] CSI Snapshotter is based on version 4.2.1 (released in August of 2021) this needs to be updated to v6+
+  - [x] clusterRole needs to add additional privileges to work properly
+- [ ] Add support for the [csi-testing framework](https://github.com/kubernetes-csi/csi-test/tree/master)
+- [ ] Add support for Topology [CSI Topology Feature](https://kubernetes-csi.github.io/docs/topology.html)

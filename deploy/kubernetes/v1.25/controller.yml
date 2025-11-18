@@ -91,7 +91,7 @@ spec:
             capabilities:
               add: ["SYS_ADMIN"]
             allowPrivilegeEscalation: true
-          image: registry.k8s.io/sig-storage/csi-provisioner:v2.2.2
+          image: registry.k8s.io/sig-storage/csi-provisioner:v5.2.0
           args:
             - --timeout=60s
             - --csi-address=$(ADDRESS)
@@ -110,7 +110,7 @@ spec:
             capabilities:
               add: ["SYS_ADMIN"]
             allowPrivilegeEscalation: true
-          image: registry.k8s.io/sig-storage/csi-attacher:v3.3.0
+          image: registry.k8s.io/sig-storage/csi-attacher:v4.2.0
           args:
             - --v=5
             - --csi-address=$(ADDRESS)
@@ -127,7 +127,7 @@ spec:
             capabilities:
               add: ["SYS_ADMIN"]
             allowPrivilegeEscalation: true
-          image: registry.k8s.io/sig-storage/csi-resizer:v1.3.0
+          image: registry.k8s.io/sig-storage/csi-resizer:v1.13.2
           args:
             - --v=5
             - --csi-address=$(ADDRESS)
@@ -144,7 +144,7 @@ spec:
             capabilities:
               add: ["SYS_ADMIN"]
             allowPrivilegeEscalation: true
-          image: synology/synology-csi:v1.2.1
+          image: ghcr.io/xphyr/synology-csi:1.4.5
           args:
             - --nodeid=NotUsed
             - --endpoint=$(CSI_ENDPOINT)
