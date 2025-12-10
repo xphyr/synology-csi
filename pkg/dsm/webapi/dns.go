@@ -51,7 +51,7 @@ func (dsm *DSM) RecordCreate(dnsRecord DNSRecord) error {
 	if err != nil {
 		log.Error("There was an error.")
 		log.Debugf("The Params were: %s", params.Encode())
-		log.Errorf("The error was: %s, the response was %s\n", err, resp)
+		log.Errorf("The error was: %s, the response was %v\n", err, resp)
 		return err
 	}
 	log.Infof("Record %s created successfully.", dnsRecord.Record)
@@ -101,7 +101,7 @@ func (dsm *DSM) RecordDelete(dnsRecord DNSRecord) error {
 			if err != nil {
 				log.Error("There was an error.")
 				log.Debugf("The Params were: %s\n", params.Encode())
-				log.Errorf("The error was: %s, the response was %s\n", err, resp)
+				log.Errorf("The error was: %s, the response was %v\n", err, resp)
 				return err
 			}
 			deletedRecords++
@@ -162,7 +162,7 @@ func (dsm *DSM) RecordList(zoneName []string, zoneType string) ([]DNSRecord, err
 		if err != nil {
 			log.Error("There was an error.")
 			log.Debugf("The Params were: %s", params.Encode())
-			log.Errorf("The error was: %s, the response was %s\n", err, resp)
+			log.Errorf("The error was: %s, the response was %v\n", err, resp)
 			return nil, errCodeMapping(resp.ErrorCode, err)
 		}
 
@@ -189,7 +189,7 @@ func (dsm *DSM) ZoneList() ([]ZoneRecord, error) {
 	resp, err := dsm.sendRequest("", &ZoneRecords{}, params, "webapi/entry.cgi")
 	if err != nil {
 		log.Error("There was an error.")
-		log.Errorf("The error was: %s, the response was %s\n", err, resp)
+		log.Errorf("The error was: %s, the response was %v\n", err, resp)
 		return nil, errCodeMapping(resp.ErrorCode, err)
 	}
 	log.Debug(resp)
@@ -228,7 +228,7 @@ func (dsm *DSM) RecordFind(dnsRecord DNSRecord, zoneType string) ([]DNSRecord, e
 	if err != nil {
 		log.Error("There was an error.")
 		log.Debugf("The Params were: %s", params.Encode())
-		log.Errorf("The error was: %s, the response was %s\n", err, resp)
+		log.Errorf("The error was: %s, the response was %v\n", err, resp)
 		return nil, errCodeMapping(resp.ErrorCode, err)
 	}
 

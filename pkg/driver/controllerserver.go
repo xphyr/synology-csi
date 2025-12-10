@@ -82,6 +82,35 @@ func parseNfsVesrion(ops []string) string {
 	return ""
 }
 
+func parseDevAttribs(params map[string]string) (map[string]bool, error) {
+	attribFlags := make(map[string]bool)
+
+	for _, attrib := range strings.Split(params["devAttribs"], ",") {
+		attrib = strings.TrimSpace(attrib)
+		if len(attrib) < 1 {
+			continue
+		}
+		enabled := true
+		if strings.HasSuffix(attrib, "-") {
+			attrib = strings.TrimSuffix(attrib, "-")
+			enabled = false
+		}
+
+		attribFlags[attrib] = enabled
+	}
+
+	if params["enableSpaceReclamation"] != "" {
+		attribFlags["emulate_tpu"] = utils.StringToBoolean(params["enableSpaceReclamation"])
+	}
+	if params["enableFuaSyncCache"] != "" {
+		enabled := utils.StringToBoolean(params["enableFuaSyncCache"])
+		attribFlags["emulate_fua_write"] = enabled
+		attribFlags["emulate_sync_cache"] = enabled
+	}
+
+	return attribFlags, nil
+}
+
 func (cs *controllerServer) CreateVolume(ctx context.Context, req *csi.CreateVolumeRequest) (*csi.CreateVolumeResponse, error) {
 	sizeInByte, err := getSizeByCapacityRange(req.GetCapacityRange())
 	volName, volCap := req.GetName(), req.GetVolumeCapabilities()
@@ -160,8 +189,6 @@ func (cs *controllerServer) CreateVolume(ctx context.Context, req *csi.CreateVol
 		}
 	}
 
-	devAttribs := params["devAttribs"]
-
 	// capture recyclebin support for nfs/smb shares
 	// by default we are DISABLING the recyclebin
 	// recyclebin does not fit in the general storage model of Kubernetes
@@ -179,6 +206,14 @@ func (cs *controllerServer) CreateVolume(ctx context.Context, req *csi.CreateVol
 		if err != nil {
 			return nil, status.Errorf(codes.InvalidArgument, "unsupported recyclebinadminonly setting: %s", params["recycleBinAdminOnly"])
 		}
+	}
+
+	devAttribs, err := parseDevAttribs(params)
+	if err != nil {
+		return nil, err
+	}
+	if enabled, exists := devAttribs["emulate_tpu"]; exists && enabled && !isThin {
+		return nil, status.Error(codes.InvalidArgument, "Invalid provisioning type: space reclamation only supported for thin LUNs")
 	}
 
 	lunDescription := ""

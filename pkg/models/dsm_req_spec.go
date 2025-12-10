@@ -25,7 +25,7 @@ type CreateK8sVolumeSpec struct {
 	SourceVolumeId      string
 	Protocol            string
 	NfsVersion          string
-	DevAttribs          string
+	DevAttribs          map[string]bool
 	EnableRecycleBin    bool
 	RecycleBinAdminOnly bool
 }

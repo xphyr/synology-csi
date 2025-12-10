@@ -270,20 +270,10 @@ func (service *DsmService) createVolumeByDsm(dsm *webapi.DSM, spec *models.Creat
 	}
 
 	devAttribs := []webapi.LunDevAttrib{}
-	for _, attrib := range strings.Split(spec.DevAttribs, ",") {
-		attrib = strings.TrimSpace(attrib)
-		if len(attrib) < 1 {
-			continue
-		}
-		enabled := 1
-		if strings.HasSuffix(attrib, "-") {
-			attrib = strings.TrimSuffix(attrib, "-")
-			enabled = 0
-		}
-
+	for key, value := range spec.DevAttribs {
 		devAttribs = append(devAttribs, webapi.LunDevAttrib{
-			DevAttrib: attrib,
-			Enable:    enabled,
+			DevAttrib: key,
+			Enable:    utils.BoolToInt(value),
 		})
 	}
 
