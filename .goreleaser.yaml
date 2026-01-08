@@ -3,12 +3,8 @@ version: 2
 
 project_name: synology-csi
 
-before:
-  # https://goreleaser.com/customization/hooks/
-  hooks:
-    # tidy up and lint
-    - go mod tidy
-    - go fmt ./...
+sboms:
+  - artifacts: archive
 
 builds:
   # https://goreleaser.com/customization/build/
@@ -70,6 +66,15 @@ docker_manifests:
     image_templates:
       - "ghcr.io/{{ .Env.REPO_OWNER }}/{{ .ProjectName }}:latest-amd64"
       - "ghcr.io/{{ .Env.REPO_OWNER }}/{{ .ProjectName }}:latest-arm64"
+
+docker_signs:
+  - cmd: cosign
+    artifacts: all
+    output: true
+    args:
+      - 'sign'
+      - '${artifact}'
+      - "--yes" # needed for cosign 2.0+ keyless
 
 checksum:
   name_template: "checksums.txt"
