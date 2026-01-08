@@ -2,7 +2,8 @@ version: "2"
 run:
   timeout: 5m
 linters:
-  disable-all: true
+#  disable:
+#    - all
   enable:
     - errcheck
     - govet
@@ -28,48 +29,48 @@ linters:
     - whitespace
 
 
-linters-settings:
-  govet:
-    enable:
-      - shadow
-  gocyclo:
-    min-complexity: 15
-
-  dupl:
-    threshold: 100
-  goconst:
-    min-len: 3
-    min-occurrences: 3
-  misspell:
-    locale: US
-  lll:
-    line-length: 120
-  goimports:
-    local-prefixes: github.com/xphyr/synology-csi
-  revive:
-    severity: warning
-    confidence: 0.8
-    rules:
-      - name: exported
-      - name: blank-imports
-      - name: context-as-argument
-      - name: context-keys-type
-      - name: dot-imports
-      - name: error-return
-      - name: error-strings
-      - name: error-naming
-      - name: if-return
-      - name: increment-decrement
-      - name: var-naming
-      - name: var-declaration
-      - name: package-comments
-      - name: range
-      - name: receiver-naming
-      - name: time-naming
-      - name: unexported-return
-      - name: indent-error-flow
-      - name: errorf
-      - name: empty-block
-      - name: superfluous-else
-      - name: unreachable-code
-      - name: redefines-builtin-id
+# linters-settings:
+#   govet:
+#     enable:
+#       - shadow
+#   gocyclo:
+#     min-complexity: 15
+#
+#   dupl:
+#     threshold: 100
+#   goconst:
+#     min-len: 3
+#     min-occurrences: 3
+#   misspell:
+#     locale: US
+#   lll:
+#     line-length: 120
+#   goimports:
+#     local-prefixes: github.com/xphyr/synology-csi
+#   revive:
+#     severity: warning
+#     confidence: 0.8
+#     rules:
+#       - name: exported
+#       - name: blank-imports
+#       - name: context-as-argument
+#       - name: context-keys-type
+#       - name: dot-imports
+#       - name: error-return
+#       - name: error-strings
+#       - name: error-naming
+#       - name: if-return
+#       - name: increment-decrement
+#       - name: var-naming
+#       - name: var-declaration
+#       - name: package-comments
+#       - name: range
+#       - name: receiver-naming
+#       - name: time-naming
+#       - name: unexported-return
+#       - name: indent-error-flow
+#       - name: errorf
+#       - name: empty-block
+#       - name: superfluous-else
+#       - name: unreachable-code
+#       - name: redefines-builtin-id
