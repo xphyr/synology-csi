@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"net"
+	"sync"
 
 	"strconv"
 	"strings"
@@ -26,6 +27,7 @@ import (
 
 type DsmService struct {
 	dsms map[string]*webapi.DSM
+	mux  sync.RWMutex
 }
 
 func NewDsmService() *DsmService {
@@ -36,10 +38,13 @@ func NewDsmService() *DsmService {
 
 func (service *DsmService) AddDsm(client common.ClientInfo) error {
 	// TODO: use sn or other identifiers as key
+	service.mux.RLock()
 	if _, ok := service.dsms[client.Host]; ok {
+		service.mux.RUnlock()
 		log.Infof("Adding DSM [%s] already present.", client.Host)
 		return nil
 	}
+	service.mux.RUnlock()
 
 	preferredSrc, err := determineRouteInterface(client.Host)
 	if err != nil {
@@ -72,11 +77,15 @@ func (service *DsmService) AddDsm(client common.ClientInfo) error {
 	} else {
 		log.Infof("Add DSM [%s] and sourceIP [%s].", dsm.Ip, dsm.NodeSourceIP)
 	}
+	service.mux.Lock()
 	service.dsms[dsm.Ip] = dsm
+	service.mux.Unlock()
 	return nil
 }
 
 func (service *DsmService) RemoveAllDsms() {
+	service.mux.Lock()
+	defer service.mux.Unlock()
 	for _, dsm := range service.dsms {
 		log.Infof("Going to logout DSM [%s]", dsm.Ip)
 
@@ -91,7 +100,9 @@ func (service *DsmService) RemoveAllDsms() {
 }
 
 func (service *DsmService) GetDsm(ip string) (*webapi.DSM, error) {
+	service.mux.RLock()
 	dsm, ok := service.dsms[ip]
+	service.mux.RUnlock()
 	if !ok {
 		return nil, fmt.Errorf("requested dsm [%s] does not exist", ip)
 	}
@@ -99,12 +110,16 @@ func (service *DsmService) GetDsm(ip string) (*webapi.DSM, error) {
 }
 
 func (service *DsmService) GetDsmsCount() int {
+	service.mux.RLock()
+	defer service.mux.RUnlock()
 	return len(service.dsms)
 }
 
 func (service *DsmService) ListDsmVolumes(ip string) ([]webapi.VolInfo, error) {
 	var allVolInfos []webapi.VolInfo
 
+	service.mux.RLock()
+	defer service.mux.RUnlock()
 	for _, dsm := range service.dsms {
 		if ip != "" && dsm.Ip != ip {
 			continue
@@ -122,7 +137,6 @@ func (service *DsmService) ListDsmVolumes(ip string) ([]webapi.VolInfo, error) {
 }
 
 func determineRouteInterface(serverAddr string) (string, error) {
-
 	var ip net.IP
 	if ip = net.ParseIP(serverAddr); ip == nil {
 		return "", fmt.Errorf("error as non-ip target %s is passed", serverAddr)
@@ -153,7 +167,7 @@ func (service *DsmService) getFirstAvailableVolume(dsm *webapi.DSM, sizeInBytes 
 		if err != nil {
 			return webapi.VolInfo{}, err
 		}
-		if free < utils.UNIT_GB {
+		if free < utils.UnitGB {
 			continue
 		}
 		if volInfo.Status == "crashed" || volInfo.Status == "read_only" || volInfo.Status == "deleting" || free <= sizeInBytes {
@@ -568,7 +582,15 @@ func (service *DsmService) CreateVolume(spec *models.CreateK8sVolumeSpec) (*mode
 	}
 
 	/* Find appropriate dsm to create volume */
+	service.mux.RLock()
+	// Create a copy of the slice to avoid holding the lock during the long loop
+	dsms := make([]*webapi.DSM, 0, len(service.dsms))
 	for _, dsm := range service.dsms {
+		dsms = append(dsms, dsm)
+	}
+	service.mux.RUnlock()
+
+	for _, dsm := range dsms {
 		if spec.DsmIp != "" && spec.DsmIp != dsm.Ip {
 			continue
 		}
@@ -643,7 +665,14 @@ func (service *DsmService) DeleteVolume(volId string) error {
 }
 
 func (service *DsmService) listISCSIVolumes(dsmIp string) (infos []*models.K8sVolumeRespSpec) {
+	service.mux.RLock()
+	var dsms []*webapi.DSM
 	for _, dsm := range service.dsms {
+		dsms = append(dsms, dsm)
+	}
+	service.mux.RUnlock()
+
+	for _, dsm := range dsms {
 		if dsmIp != "" && dsmIp != dsm.Ip {
 			continue
 		}

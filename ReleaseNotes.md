@@ -51,3 +51,12 @@ This release introduces potentially **BREAKING CHANGES** If you are converting f
 # v1.4.5.
   - Added additional functionality to the webapi to work with DNS records for another project
   - Fixed a bug with NFS share creation. Description can be only 64 characters long MAX otherwise the API throws an error. This only effects NFS/SMB shares
+
+# v1.4.6
+  - NOTE: The following changes have been made by Antigravity and the Gemini 3 Pro AI agent.
+  - **Critical Concurrency Fix**: Added mutex locking to `DsmService` to prevent race conditions during concurrent volume operations.
+  - **Refactoring**: Removed global variables in `main.go`. Configuration is now properly encapsulated in a `Config` struct and passed to the driver.
+  - **Code Quality**:
+    - Introduced `DSMClient` interface for better modularity and testing support.
+    - Updated `.golangci.yml` with a comprehensive set of linters.
+    - Addressed numerous linting issues including whitespace cleanup and variable naming.

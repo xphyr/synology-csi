@@ -59,7 +59,6 @@ func (dsm *DSM) RecordCreate(dnsRecord DNSRecord) error {
 	log.Debug(resp)
 
 	return nil
-
 }
 
 // RecordDelete deletes a DNS record

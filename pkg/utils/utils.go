@@ -11,8 +11,8 @@ import (
 type AuthType string
 
 const (
-	UNIT_GB = 1024 * 1024 * 1024
-	UNIT_MB = 1024 * 1024
+	UnitGB = 1024 * 1024 * 1024
+	UnitMB = 1024 * 1024
 
 	ProtocolSmb     = "smb"
 	ProtocolIscsi   = "iscsi"
@@ -34,16 +34,16 @@ func SliceContains(items []string, s string) bool {
 }
 
 func MBToBytes(size int64) int64 {
-	return size * UNIT_MB
+	return size * UnitMB
 }
 
 func BytesToMB(size int64) int64 {
-	return size / UNIT_MB
+	return size / UnitMB
 }
 
 // Ceiling
 func BytesToMBCeil(size int64) int64 {
-	return (size + UNIT_MB - 1) / UNIT_MB
+	return (size + UnitMB - 1) / UnitMB
 }
 
 func StringToBoolean(value string) bool {

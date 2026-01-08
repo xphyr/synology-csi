@@ -44,7 +44,7 @@ type controllerServer struct {
 
 func getSizeByCapacityRange(capRange *csi.CapacityRange) (int64, error) {
 	if capRange == nil {
-		return 1 * utils.UNIT_GB, nil
+		return 1 * utils.UnitGB, nil
 	}
 
 	minSize := capRange.GetRequiredBytes()
@@ -52,12 +52,12 @@ func getSizeByCapacityRange(capRange *csi.CapacityRange) (int64, error) {
 	if 0 < maxSize && maxSize < minSize {
 		return 0, status.Error(codes.InvalidArgument, "Invalid input: limitBytes is smaller than requiredBytes")
 	}
-	if minSize < utils.UNIT_GB {
+	if minSize < utils.UnitGB {
 		// since the minSize is smaller than the Synology supports, bump the size up to the minimum required size
-		return 1 * utils.UNIT_GB, nil
+		return 1 * utils.UnitGB, nil
 	}
 
-	return int64(minSize), nil
+	return minSize, nil
 }
 
 func (cs *controllerServer) isVolumeAccessModeSupport(mode csi.VolumeCapability_AccessMode_Mode) bool {
@@ -82,7 +82,7 @@ func parseNfsVesrion(ops []string) string {
 	return ""
 }
 
-func parseDevAttribs(params map[string]string) (map[string]bool, error) {
+func parseDevAttribs(params map[string]string) map[string]bool {
 	attribFlags := make(map[string]bool)
 
 	for _, attrib := range strings.Split(params["devAttribs"], ",") {
@@ -108,7 +108,7 @@ func parseDevAttribs(params map[string]string) (map[string]bool, error) {
 		attribFlags["emulate_sync_cache"] = enabled
 	}
 
-	return attribFlags, nil
+	return attribFlags
 }
 
 func (cs *controllerServer) CreateVolume(ctx context.Context, req *csi.CreateVolumeRequest) (*csi.CreateVolumeResponse, error) {
@@ -208,10 +208,8 @@ func (cs *controllerServer) CreateVolume(ctx context.Context, req *csi.CreateVol
 		}
 	}
 
-	devAttribs, err := parseDevAttribs(params)
-	if err != nil {
-		return nil, err
-	}
+	devAttribs := parseDevAttribs(params)
+
 	if enabled, exists := devAttribs["emulate_tpu"]; exists && enabled && !isThin {
 		return nil, status.Error(codes.InvalidArgument, "Invalid provisioning type: space reclamation only supported for thin LUNs")
 	}
