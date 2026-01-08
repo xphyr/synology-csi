@@ -13,9 +13,7 @@ formatters:
       max-len: 150
 
 linters:
-  allow-parallel: true
-  enable-all: false
-  disable-all: true
+  default: none
   enable:
     # go vet is excellent and finds suspicious constructs and potential bugs
     - govet
@@ -36,10 +34,10 @@ linters:
   disable:
     - errcheck
 
-linters-settings:
-   govet:
-     enable:
-       - shadow
+  settings:
+    govet:
+      enable:
+      - shadow
 #   gocyclo:
 #     min-complexity: 15
 #

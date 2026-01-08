@@ -50,7 +50,7 @@ func (dsm *DSM) sendRequest(data string, apiTemplate interface{}, params url.Val
 	// catches the following errors:105: WEBAPI_ERR_NO_PERMISSION, 106: session timeout, 119: WEBAPI_ERR_SID_NOT_FOUND
 	if err != nil && (resp.ErrorCode == 105 || resp.ErrorCode == 106 || resp.ErrorCode == 119) {
 		// Re-login
-		if err := dsm.Login(); err != nil {
+		if err = dsm.Login(); err != nil {
 			return Response{}, fmt.Errorf("failed to re-login to DSM: [%s]. err: %v", dsm.Ip, err)
 		}
 		log.Info("Re-login succeeded.")
@@ -136,13 +136,13 @@ func (dsm *DSM) sendRequestWithoutConnectionCheck(data string, apiTemplate inter
 	var outResp Response
 
 	if logger.WebapiDebug {
-		if err := json.Unmarshal(bodyText, &e); err != nil {
+		if err = json.Unmarshal(bodyText, &e); err != nil {
 			return Response{}, err
 		}
 	} else {
 		decoder := json.NewDecoder(resp.Body)
 
-		if err := decoder.Decode(&e); err != nil {
+		if err = decoder.Decode(&e); err != nil {
 			return Response{}, err
 		}
 	}
@@ -155,7 +155,7 @@ func (dsm *DSM) sendRequestWithoutConnectionCheck(data string, apiTemplate inter
 	}
 
 	if e.Data != nil {
-		if err := json.Unmarshal(e.Data, apiTemplate); err != nil {
+		if err = json.Unmarshal(e.Data, apiTemplate); err != nil {
 			return Response{}, err
 		}
 	}

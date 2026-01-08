@@ -640,7 +640,7 @@ func (service *DsmService) DeleteVolume(volId string) error {
 		lun, target := k8sVolume.Lun, k8sVolume.Target
 
 		if err := dsm.LunDelete(lun.Uuid); err != nil {
-			if _, err := dsm.LunGet(lun.Uuid); err != nil && errors.Is(err, utils.NoSuchLunError("")) {
+			if _, err = dsm.LunGet(lun.Uuid); err != nil && errors.Is(err, utils.NoSuchLunError("")) {
 				return nil
 			}
 			log.Errorf("[%s] Failed to delete LUN(%s): %v", dsm.Ip, lun.Uuid, err)
@@ -653,7 +653,7 @@ func (service *DsmService) DeleteVolume(volId string) error {
 		}
 
 		if err := dsm.TargetDelete(strconv.Itoa(target.TargetId)); err != nil {
-			if _, err := dsm.TargetGet(strconv.Itoa(target.TargetId)); err != nil {
+			if _, err = dsm.TargetGet(strconv.Itoa(target.TargetId)); err != nil {
 				return nil
 			}
 			log.Errorf("[%s] Failed to delete target(%d): %v", dsm.Ip, target.TargetId, err)
@@ -876,7 +876,7 @@ func (service *DsmService) DeleteSnapshot(snapshotUuid string) error {
 		}
 	case utils.ProtocolIscsi:
 		if err := dsm.SnapshotDelete(snapshotUuid); err != nil {
-			if _, err := dsm.SnapshotGet(snapshotUuid); err != nil { // idempotency
+			if _, err = dsm.SnapshotGet(snapshotUuid); err != nil { // idempotency
 				return nil
 			}
 

@@ -45,7 +45,7 @@ func driverStart(cfg *Config) error {
 	}
 
 	for _, client := range info.Clients {
-		err := dsmService.AddDsm(client)
+		err = dsmService.AddDsm(client)
 		if err != nil {
 			log.Errorf("Failed to add DSM: %s, error: %v", client.Host, err)
 		}

@@ -47,7 +47,7 @@ func (service *DsmService) createSMBorNFSVolumeBySnapshot(dsm *webapi.DSM, spec 
 		},
 	}
 
-	if _, err := dsm.ShareClone(shareCloneSpec); err != nil && !errors.Is(err, utils.AlreadyExistError("")) {
+	if _, err = dsm.ShareClone(shareCloneSpec); err != nil && !errors.Is(err, utils.AlreadyExistError("")) {
 		return nil,
 			status.Errorf(codes.Internal, "%s", fmt.Sprintf("Failed to create volume with source volume ID: %s, err: %v", srcShareInfo.Uuid, err))
 	}

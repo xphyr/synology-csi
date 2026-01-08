@@ -23,6 +23,7 @@ fmt:
 
 # Run go fmt, go vet, and golangci-lint (requires golangci-lint to be installed)
 vet:
+	golangci-lint config verify
 	golangci-lint run --timeout=5m
 
 # Run only golangci-lint

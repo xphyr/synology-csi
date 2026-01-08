@@ -122,7 +122,7 @@ func createTargetMountPathNFS(mounter mount.Interface, mountPath string, mountPe
 	notMount, err := mounter.IsLikelyNotMountPoint(mountPath)
 	if err != nil {
 		if os.IsNotExist(err) {
-			if err := os.MkdirAll(mountPath, os.FileMode(mountPermissionsUint)); err != nil {
+			if err = os.MkdirAll(mountPath, os.FileMode(mountPermissionsUint)); err != nil {
 				return notMount, err
 			}
 			notMount = true
@@ -138,10 +138,10 @@ func createTargetMountPath(mounter mount.Interface, mountPath string, isBlock bo
 	if err != nil {
 		if errors.Is(err, fs.ErrNotExist) {
 			if isBlock {
-				pathFile, err := os.OpenFile(mountPath, os.O_CREATE|os.O_RDWR, 0750)
-				if err != nil {
-					log.Errorf("Failed to create mountPath:%s with error: %v", mountPath, err)
-					return isMount, err
+				pathFile, errOpenFile := os.OpenFile(mountPath, os.O_CREATE|os.O_RDWR, 0750)
+				if errOpenFile != nil {
+					log.Errorf("Failed to create mountPath:%s with error: %v", mountPath, errOpenFile)
+					return isMount, errOpenFile
 				}
 				if err = pathFile.Close(); err != nil {
 					log.Errorf("Failed to close mountPath:%s with error: %v", mountPath, err)
@@ -826,7 +826,7 @@ func (ns *nodeServer) NodeExpandVolume(ctx context.Context, req *csi.NodeExpandV
 			CapacityBytes: sizeInByte}, nil
 	}
 
-	if err := ns.Initiator.rescan(k8sVolume.Target.Iqn); err != nil {
+	if err = ns.Initiator.rescan(k8sVolume.Target.Iqn); err != nil {
 		return nil, status.Error(codes.Internal, fmt.Sprintf("Failed to rescan. err: %v", err))
 	}
 
@@ -838,7 +838,7 @@ func (ns *nodeServer) NodeExpandVolume(ctx context.Context, req *csi.NodeExpandV
 	}
 
 	if strings.Contains(volumeMountPath, "/dev/mapper") && ns.tools.IsMultipathEnabled() {
-		if err := ns.tools.multipath_resize(filepath.Base(volumeMountPath)); err != nil {
+		if err = ns.tools.multipath_resize(filepath.Base(volumeMountPath)); err != nil {
 			return nil, status.Error(codes.Internal, fmt.Sprintf("Failed to resize multipath device in %s. err: %v", volumeMountPath, err))
 		}
 	}

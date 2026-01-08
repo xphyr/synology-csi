@@ -184,7 +184,7 @@ func (cs *controllerServer) CreateVolume(ctx context.Context, req *csi.CreateVol
 	mountPermissions := params["mountPermissions"]
 	// check mountPermissions valid
 	if mountPermissions != "" {
-		if _, err := strconv.ParseUint(mountPermissions, 8, 32); err != nil {
+		if _, err = strconv.ParseUint(mountPermissions, 8, 32); err != nil {
 			return nil, status.Errorf(codes.InvalidArgument, "invalid mountPermissions %s in storage class", mountPermissions)
 		}
 	}

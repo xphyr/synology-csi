@@ -50,7 +50,7 @@ func TestSanity(t *testing.T) {
 	dsmService := service.NewDsmService()
 
 	for _, client := range info.Clients {
-		err := dsmService.AddDsm(client)
+		err = dsmService.AddDsm(client)
 		if err != nil {
 			fmt.Printf("Failed to add DSM: %s, error: %v\n", client.Host, err)
 		}

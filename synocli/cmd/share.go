@@ -208,16 +208,16 @@ var cmdShareClone = &cobra.Command{
 		snapshot := ""
 		if fromSnapshot {
 			snapshot = srcName
-			shares, err := dsm.ShareList()
-			if err != nil {
-				fmt.Println(err)
+			shares, errShareList := dsm.ShareList()
+			if errShareList != nil {
+				fmt.Println(errShareList)
 				os.Exit(1)
 			}
 
 			for _, share := range shares {
-				snaps, err := dsm.ShareSnapshotList(share.Name)
-				if err != nil {
-					fmt.Println(err)
+				snaps, errShareSnapshotList := dsm.ShareSnapshotList(share.Name)
+				if errShareSnapshotList != nil {
+					fmt.Println(errShareSnapshotList)
 					os.Exit(1)
 				}
 				for _, snap := range snaps {
@@ -520,7 +520,7 @@ var cmdSharePermissionSet = &cobra.Command{
 		}
 
 		fmt.Printf("spec = %#v\n", spec)
-		if err := dsm.SharePermissionSet(spec); err != nil {
+		if err = dsm.SharePermissionSet(spec); err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
@@ -568,7 +568,7 @@ var cmdShareSet = &cobra.Command{
 			VolPath:        share.VolPath,
 			QuotaForCreate: &newSizeInMB,
 		}
-		if err := dsm.ShareSet(shareName, updateInfo); err != nil {
+		if err = dsm.ShareSet(shareName, updateInfo); err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
