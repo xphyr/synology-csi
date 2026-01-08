@@ -52,7 +52,6 @@ type nonBlockingGRPCServer struct {
 }
 
 func (s *nonBlockingGRPCServer) Start(endpoint string, ids csi.IdentityServer, cs csi.ControllerServer, ns csi.NodeServer) {
-
 	s.wg.Add(1)
 
 	go s.serve(endpoint, ids, cs, ns)
@@ -71,7 +70,6 @@ func (s *nonBlockingGRPCServer) ForceStop() {
 }
 
 func (s *nonBlockingGRPCServer) serve(endpoint string, ids csi.IdentityServer, cs csi.ControllerServer, ns csi.NodeServer) {
-
 	proto, addr, err := ParseEndpoint(endpoint)
 	if err != nil {
 		log.Fatal(err.Error())

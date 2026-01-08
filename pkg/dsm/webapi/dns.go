@@ -137,7 +137,6 @@ func (dsm *DSM) updateDNSrecord() {
 */
 // RecordList gets all records for the specified zone names and zone type (master/slave)
 func (dsm *DSM) RecordList(zoneName []string, zoneType string) ([]DNSRecord, error) {
-
 	type DNSRecords struct {
 		Record []DNSRecord `json:"items"`
 	}
@@ -201,7 +200,6 @@ func (dsm *DSM) ZoneList() ([]ZoneRecord, error) {
 }
 
 func (dsm *DSM) RecordFind(dnsRecord DNSRecord, zoneType string) ([]DNSRecord, error) {
-
 	type DNSRecords struct {
 		Record []DNSRecord `json:"items"`
 	}
@@ -244,5 +242,4 @@ func (dsm *DSM) RecordFind(dnsRecord DNSRecord, zoneType string) ([]DNSRecord, e
 		allDNSRecords[i].DomainName = dnsRecord.DomainName
 	}
 	return allDNSRecords, nil
-
 }

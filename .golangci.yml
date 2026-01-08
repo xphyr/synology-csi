@@ -5,12 +5,13 @@ run:
 formatters:
   enable:
     - goimports # checks if the code and import statements are formatted according to the 'goimports' command
-    - golines # checks if code is formatted, and fixes long lines
+    - gofmt # checks if the code is formatted according to the 'gofmt' command
+    #- golines # checks if code is formatted, and fixes long lines
 
   settings:
     golines:
-      max-len: 120
-      
+      max-len: 150
+
 linters:
   allow-parallel: true
   enable-all: false

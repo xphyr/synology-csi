@@ -23,7 +23,6 @@ fmt:
 
 # Run go fmt, go vet, and golangci-lint (requires golangci-lint to be installed)
 vet:
-	$(MAKE) fmt
 	golangci-lint run --timeout=5m
 
 # Run only golangci-lint

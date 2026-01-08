@@ -61,7 +61,7 @@ var cmdDNSList = &cobra.Command{
 			fmt.Fprintf(tw, "%-12s\t", dnsRecord.TTL)
 			fmt.Fprintf(tw, "%-6s\t", dnsRecord.Type)
 			fmt.Fprintf(tw, "%-36s\t", dnsRecord.Value)
-			fmt.Fprintf(tw, "%-36s\t", strings.Replace(dnsRecord.FullRecord, "\t", ",", -1))
+			fmt.Fprintf(tw, "%-36s\t", strings.ReplaceAll(dnsRecord.FullRecord, "\t", ","))
 			fmt.Fprintf(tw, "%-16s\t", dnsRecord.ZoneName)
 			fmt.Fprintf(tw, "%-16s\t", dnsRecord.DomainName)
 			fmt.Fprintf(tw, "\n")
