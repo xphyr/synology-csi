@@ -1,38 +1,44 @@
 version: "2"
 run:
   timeout: 5m
-linters:
-#  disable:
-#    - all
+
+formatters:
   enable:
-    - errcheck
+    - goimports # checks if the code and import statements are formatted according to the 'goimports' command
+    - golines # checks if code is formatted, and fixes long lines
+
+  settings:
+    golines:
+      max-len: 120
+      
+linters:
+  allow-parallel: true
+  enable-all: false
+  disable-all: true
+  enable:
+    # go vet is excellent and finds suspicious constructs and potential bugs
     - govet
+    # staticcheck is a powerful linter that catches bugs, performance issues, and style problems
+    - staticcheck
+    # errcheck ensures all error return values are handled
+    # - errcheck
+    # ineffassign detects variables assigned but never used
     - ineffassign
-    - revive
-    - gosec
-    - gocyclo
-    - misspell
-    - bodyclose
-    - dogsled
-    - dupl
-    - funlen
-    - goconst
-    - gocritic
-    - goprintffuncname
-    - goheader
-    - lll
-    - nakedret
-    - nolintlint
-    - rowserrcheck
-    - unconvert
-    - unparam
+    # unused detects unused variables, constants, functions, etc.
+    - unused
+    # gosec is a security checker
+    # - gosec
+    # revive is a more opinionated, customizable alternative to golint
+    # - revive
+    # whitespace enforces consistent spacing and alignment
     - whitespace
+  disable:
+    - errcheck
 
-
-# linters-settings:
-#   govet:
-#     enable:
-#       - shadow
+linters-settings:
+   govet:
+     enable:
+       - shadow
 #   gocyclo:
 #     min-complexity: 15
 #
