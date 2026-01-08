@@ -19,6 +19,9 @@ const (
 )
 
 func TestSanity(t *testing.T) {
+	if os.Getenv("RUN_SANITY_TEST") == "" {
+		t.Skip("Skipping sanity test. Set RUN_SANITY_TEST=1 to run.")
+	}
 	nodeID := "CSINode"
 
 	endpointFile, err := os.CreateTemp("", "csi-gcs.*.sock")

@@ -20,15 +20,15 @@ jobs:
       uses: actions/setup-go@v5
       with:
         go-version-file: "go.mod"
-    
-    - name: Build
-      run: go build -v ./...
-
-    - name: Test
-      run: go test -v ./...
 
     - name: User golangci-lint
       uses: golangci/golangci-lint-action@v6
       with:
         version: v1.60
+
+    - name: Test
+      run: go test -v ./...
+
+    - name: Build
+      run: go build -v ./...
 
