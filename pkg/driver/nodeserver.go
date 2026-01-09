@@ -175,7 +175,7 @@ func (ns *nodeServer) getPortals(dsmIp string) []string {
 		log.Error(err)
 		portals = append(portals, fmt.Sprintf("%s:%d", dsmIp, ISCSIPort))
 	} else {
-		portals = append(portals, fmt.Sprintf("%s:%d", ips[0], ISCSIPort)) //get the first ip
+		portals = append(portals, fmt.Sprintf("%s:%d", ips[0], ISCSIPort)) // get the first ip
 	}
 
 	if dsm.IsUC() && ns.tools.IsMultipathEnabled() {
@@ -446,7 +446,7 @@ func (ns *nodeServer) nodeStageSMBVolume(ctx context.Context, spec *models.NodeS
 		return nil, status.Error(codes.InvalidArgument, "SMB protocol only allows 'mount' access type")
 	}
 
-	if spec.Source == "" { //"//<host>/<shareName>"
+	if spec.Source == "" { // "//<host>/<shareName>"
 		return nil, status.Error(codes.InvalidArgument, "missing 'source' field")
 	}
 

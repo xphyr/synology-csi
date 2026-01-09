@@ -42,7 +42,6 @@ var cmdDNSList = &cobra.Command{
 				fmt.Println(err)
 				os.Exit(1)
 			}
-			//fmt.Println(dnsRecords)
 			dnsRecords = records
 			dsm.Logout()
 		}
@@ -96,7 +95,6 @@ var cmdZoneList = &cobra.Command{
 				fmt.Println(err)
 				os.Exit(1)
 			}
-			//fmt.Println(dnsRecords)
 			zoneRecords = records
 			dsm.Logout()
 		}
@@ -125,6 +123,9 @@ var cmdZoneList = &cobra.Command{
 	},
 }
 
+// this cmd and cmdRecordDelete are very similar
+//
+//nolint:dupl
 var cmdRecordCreate = &cobra.Command{
 	Use:   "record-create",
 	Short: "create record",
@@ -162,6 +163,9 @@ var cmdRecordCreate = &cobra.Command{
 	},
 }
 
+// this cmd and cmdRecordCreate are very similar
+//
+//nolint:dupl
 var cmdRecordDelete = &cobra.Command{
 	Use:   "record-delete",
 	Short: "delete record",

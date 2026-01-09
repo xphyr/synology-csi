@@ -331,9 +331,11 @@ type dummyInterface struct {
 func (d *dummyInterface) Command(cmd string, args ...string) exec.Cmd {
 	return d.commandFunc(cmd, args...)
 }
+
 func (d *dummyInterface) CommandContext(ctx context.Context, cmd string, args ...string) exec.Cmd {
 	return d.commandContextFunc(ctx, cmd, args...)
 }
+
 func (d *dummyInterface) LookPath(path string) (string, error) { return d.lookPathFunc(path) }
 
 func TestHostexec_Command(t *testing.T) {

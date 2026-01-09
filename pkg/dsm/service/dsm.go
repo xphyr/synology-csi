@@ -89,7 +89,7 @@ func (service *DsmService) RemoveAllDsms() {
 	for _, dsm := range service.dsms {
 		log.Infof("Going to logout DSM [%s]", dsm.Ip)
 
-		for i := 0; i < 3; i++ {
+		for i := range 3 {
 			err := dsm.Logout()
 			if err == nil {
 				break

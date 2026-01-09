@@ -315,7 +315,7 @@ func (dsm *DSM) ShareSnapshotDelete(snapTime string, shareName string) error {
 	params.Add("name", strconv.Quote(shareName))
 	params.Add("snapshots", fmt.Sprintf("[%s]", strconv.Quote(snapTime))) // ["GMT+08-2022.01.14-19.18.29"]
 
-	var objmap []map[string]interface{}
+	var objmap []map[string]any
 	resp, err := dsm.sendRequest("", &objmap, params, "webapi/entry.cgi")
 	if err != nil {
 		return shareErrCodeMapping(resp.ErrorCode, err)

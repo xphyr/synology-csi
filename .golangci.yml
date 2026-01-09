@@ -6,12 +6,8 @@ formatters:
   enable:
     - goimports # checks if the code and import statements are formatted according to the 'goimports' command
     - gofmt # checks if the code is formatted according to the 'gofmt' command
-    #- golines # checks if code is formatted, and fixes long lines
 
-  settings:
-    golines:
-      max-len: 150
-
+# The following linters are aspirational. I have enabled a bunch and the ones that are commented out still have multiple warnings that need to be addressed.
 linters:
   default: none
   enable:
@@ -28,9 +24,20 @@ linters:
     # gosec is a security checker
     # - gosec
     # revive is a more opinionated, customizable alternative to golint
-    # - revive
-    # whitespace enforces consistent spacing and alignment
     - whitespace
+    # misspell checks for misspelled words
+    - misspell
+    # dupl checks for duplicated code
+    - dupl
+    # bidichk checks for bidirectional Unicode characters
+    - bidichk
+    # gocritic checks for code quality issues
+    # - gocritic
+    # govet checks for suspicious constructs and potential bugs
+    - govet
+    # modernize checks for modern Go language features
+    # - modernize
+    
   disable:
     - errcheck
 
@@ -38,44 +45,5 @@ linters:
     govet:
       enable:
       - shadow
-#   gocyclo:
-#     min-complexity: 15
-#
-#   dupl:
-#     threshold: 100
-#   goconst:
-#     min-len: 3
-#     min-occurrences: 3
-#   misspell:
-#     locale: US
-#   lll:
-#     line-length: 120
-#   goimports:
-#     local-prefixes: github.com/xphyr/synology-csi
-#   revive:
-#     severity: warning
-#     confidence: 0.8
-#     rules:
-#       - name: exported
-#       - name: blank-imports
-#       - name: context-as-argument
-#       - name: context-keys-type
-#       - name: dot-imports
-#       - name: error-return
-#       - name: error-strings
-#       - name: error-naming
-#       - name: if-return
-#       - name: increment-decrement
-#       - name: var-naming
-#       - name: var-declaration
-#       - name: package-comments
-#       - name: range
-#       - name: receiver-naming
-#       - name: time-naming
-#       - name: unexported-return
-#       - name: indent-error-flow
-#       - name: errorf
-#       - name: empty-block
-#       - name: superfluous-else
-#       - name: unreachable-code
-#       - name: redefines-builtin-id
+    dupl:
+      threshold: 150

@@ -65,7 +65,7 @@ func getCaller(skip int) (string, int) {
 func findCaller(skip int) (string, int) {
 	var file string
 	var line int
-	for i := 0; i < 10; i++ {
+	for i := range 10 {
 		file, line = getCaller(skip + i)
 		// if called by logrus functions, continue finding the upper caller
 		if !strings.HasPrefix(file, "logrus") {

@@ -58,7 +58,7 @@ func (dsm *DSM) GetAnotherController() (*DSM, error) {
 	}
 
 	ipPrefix := ips[0]
-	for i := 0; i < 4; i++ {
+	for range 4 {
 		dotPos := strings.LastIndex(ipPrefix, ".")
 
 		if dotPos == -1 {

@@ -24,7 +24,7 @@ type DSM struct {
 	Password             string
 	Sid                  string
 	Https                bool
-	Controller           string //new
+	Controller           string
 	ClientSubnetOverride string
 	NodeSourceIP         string
 }
@@ -42,10 +42,10 @@ type Response struct {
 	StatusCode int
 	ErrorCode  int
 	Success    bool
-	Data       interface{}
+	Data       any
 }
 
-func (dsm *DSM) sendRequest(data string, apiTemplate interface{}, params url.Values, cgiPath string) (Response, error) {
+func (dsm *DSM) sendRequest(data string, apiTemplate any, params url.Values, cgiPath string) (Response, error) {
 	resp, err := dsm.sendRequestWithoutConnectionCheck(data, apiTemplate, params, cgiPath)
 	// catches the following errors:105: WEBAPI_ERR_NO_PERMISSION, 106: session timeout, 119: WEBAPI_ERR_SID_NOT_FOUND
 	if err != nil && (resp.ErrorCode == 105 || resp.ErrorCode == 106 || resp.ErrorCode == 119) {
@@ -60,7 +60,7 @@ func (dsm *DSM) sendRequest(data string, apiTemplate interface{}, params url.Val
 	return resp, err
 }
 
-func (dsm *DSM) sendRequestWithoutConnectionCheck(data string, apiTemplate interface{}, params url.Values, cgiPath string) (Response, error) {
+func (dsm *DSM) sendRequestWithoutConnectionCheck(data string, apiTemplate any, params url.Values, cgiPath string) (Response, error) {
 	client := &http.Client{}
 	var req *http.Request
 	var err error

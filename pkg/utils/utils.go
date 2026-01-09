@@ -50,6 +50,7 @@ func StringToBoolean(value string) bool {
 	value = strings.ToLower(strings.TrimSpace(value))
 	return value == "yes" || value == "true" || value == "1"
 }
+
 func StringToSlice(value string) []string {
 	return strings.Fields(value)
 }
