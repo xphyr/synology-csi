@@ -3,3 +3,4 @@ config/client-info.yml
 test/sanity/sanity-test-secret-file.yaml
 dist/
 synocli/synocli
+synocli/config/client-info.yml

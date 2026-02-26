@@ -54,6 +54,7 @@ This release introduces potentially **BREAKING CHANGES** If you are converting f
 
 # v1.5.0
   - Merged PR 3 from @ressu brining code up to sync with the upstream Synology driver
+  - Added new function to synocli to get list of targets
   - NOTE: The following changes have been made by Antigravity and the Gemini 3 Pro AI agent in an attempt to improve the code quality and fix some issues.
     - **Critical Concurrency Fix**: Added mutex locking to `DsmService` to prevent race conditions during concurrent volume operations.
     - **Refactoring**: Removed global variables in `main.go`. Configuration is now properly encapsulated in a `Config` struct and passed to the driver.
