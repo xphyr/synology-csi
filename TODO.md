@@ -39,7 +39,7 @@ The following is a list of tasks to bring the Synology CSI driver up to date.
 - [ ] Update testing framework
 - [X] Remove deprecated function calls in k8s.io/mount-utils
 - [ ] Support Windows
-- [ ] Add marker to share/lun that says what cluster the share/lun is used for if you have multiple clusters
+- [X] Add marker to share/lun that says what cluster the share/lun is used for if you have multiple clusters
 - [x] Fix Snapshotter functionality
   - [x] CSI Snapshotter is based on version 4.2.1 (released in August of 2021) this needs to be updated to v6+
   - [x] clusterRole needs to add additional privileges to work properly

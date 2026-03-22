@@ -210,6 +210,7 @@ Create and apply StorageClasses with the properties you want.
 | *enableRecyclebin*                               | string | enable the recycleBin for NFS and SMB shares | false | NFS,SMB |
 | *recycleBinAdminOnly*                            | string | configure recycleBin for access by Admins only | false | NFS,SMB |
 | *clusterName*                                    | string | Adds a cluster name to the description of the LUN or share created. This will show up in the description as `<clusterName>/<namespace>/<pvcName>`. | - | iSCSI,NFS,SMB |
+| *nfsClientAllowList*                             | string | The list of clients that are allowed to access the share. Can be a comma-separated list of IP addresses or CIDR notation.                                          | - | node                 |
 
     **Notice**
 

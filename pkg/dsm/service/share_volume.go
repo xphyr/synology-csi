@@ -183,6 +183,29 @@ func (service *DsmService) createSMBorNFSVolumeByDsm(dsm *webapi.DSM, spec *mode
 			status.Errorf(codes.Internal, "%s", fmt.Sprintf("Failed to get existed Share with name: %s, err: %v", spec.ShareName, err))
 	}
 
+	// 4. Set Share Permission
+	// if the NfsClientAllowList is not "node", we need to set the share permission based on the NfsClientAllowed setting
+	if spec.NfsClientAllowList != "node" {
+		priv, err := dsm.ShareNfsPrivilegeLoad(spec.ShareName)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "%s", fmt.Errorf("failed to load share NFS privilege. %v", err))
+		}
+		priv.Rule = append(priv.Rule, webapi.PrivilegeRule{
+			Async:      true,
+			Client:     spec.NfsClientAllowList,
+			Crossmnt:   true,
+			Insecure:   true,
+			Privilege:  string(utils.AuthTypeReadWrite),
+			RootSquash: "root",
+			SecurityFlavor: webapi.SecurityFlavor{
+				Kerbros:          false,
+				KerbrosIntegrity: false,
+				KerbrosPrivacy:   false,
+				Sys:              true,
+			},
+		})
+	}
+
 	log.Debugf("[%s] createSMBorNFSVolumeByDsm Successfully. VolumeId: %s", dsm.Ip, shareInfo.Uuid)
 
 	return DsmShareToK8sVolume(dsm.Ip, shareInfo, spec.Protocol), nil

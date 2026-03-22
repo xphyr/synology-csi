@@ -37,7 +37,7 @@ release:
 # Requires a properly configured .goreleaser.yaml
 
 goreleaser-docker:
-	goreleaser release --clean --skip-publish --skip-sign --rm-dist
+	goreleaser build --snapshot --clean
 
 docker-build:
 	docker build -f Dockerfile -t $(IMAGE_TAG) .

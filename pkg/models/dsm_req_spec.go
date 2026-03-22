@@ -28,20 +28,22 @@ type CreateK8sVolumeSpec struct {
 	DevAttribs          map[string]bool
 	EnableRecycleBin    bool
 	RecycleBinAdminOnly bool
+	NfsClientAllowList  string
 }
 
 type K8sVolumeRespSpec struct {
-	DsmIp       string
-	VolumeId    string
-	SizeInBytes int64
-	Location    string
-	Name        string
-	Source      string
-	Lun         webapi.LunInfo
-	Target      webapi.TargetInfo
-	Share       webapi.ShareInfo
-	Protocol    string
-	BaseDir     string
+	DsmIp              string
+	VolumeId           string
+	SizeInBytes        int64
+	Location           string
+	Name               string
+	Source             string
+	Lun                webapi.LunInfo
+	Target             webapi.TargetInfo
+	Share              webapi.ShareInfo
+	Protocol           string
+	BaseDir            string
+	NfsClientAllowList string
 }
 
 type K8sSnapshotRespSpec struct {

@@ -64,7 +64,7 @@ var cmdTargetList = &cobra.Command{
 				fmt.Fprintf(tw, "%-10s\t", info.Status)
 				fmt.Fprintf(tw, "%-12d\t", info.MaxSessions)
 				fmt.Fprintf(tw, "%-16d\t", info.TargetId)
-				fmt.Fprintf(tw, "%-16s\t", info.MappedLuns)
+				fmt.Fprintf(tw, "%-16q\t", info.MappedLuns)
 				fmt.Fprintf(tw, "\n")
 				_ = tw.Flush()
 			}

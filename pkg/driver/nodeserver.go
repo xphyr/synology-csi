@@ -284,6 +284,15 @@ func (ns *nodeServer) mountSensitiveWithRetry(sourcePath string, targetPath stri
 	return nil
 }
 
+func ruleContainsHost(rules []webapi.PrivilegeRule, hostname string) bool {
+	for _, rule := range rules {
+		if rule.Client == hostname {
+			return true
+		}
+	}
+	return false
+}
+
 func getNodeAddress(ctx context.Context, client clientset.Interface) ([]string, error) {
 	ips := []string{}
 	nodes, err := client.CoreV1().Nodes().List(ctx, metav1.ListOptions{})
@@ -319,12 +328,34 @@ func (ns *nodeServer) setNFSVolumePrivilege(sourcePath string, hostnames []strin
 		return fmt.Errorf("failed to get DSM[%s]", dsmIp)
 	}
 
-	priv := webapi.SharePrivilege{
-		ShareName: shareName,
+	//priv := webapi.SharePrivilege{
+	//	ShareName: shareName,
+	//}
+
+	// load existing privileges
+	priv, err := dsm.ShareNfsPrivilegeLoad(shareName)
+	if err != nil {
+		return fmt.Errorf("failed to load share NFS privilege. %v", err)
+	}
+
+	// we need to check if a wildcard or CIDR rule already exists
+	// if so we dont need to do anything
+	for _, rule := range priv.Rule {
+		if rule.Client == "*" {
+			log.Debugf("Found wildcard rule, we dont need to do anything")
+			// we dont need to do anything
+			return nil
+		} else if utils.IsValidCIDR(rule.Client) {
+			// this means there is a valid CIDR rule already we dont want to change it
+			log.Debugf("Found CIDR rule, we dont need to do anything")
+			return nil
+		}
 	}
 
 	if dsm.ClientSubnetOverride != "" {
+		// This check should get removed in a release or two
 		// we need to create a different priv rule if we have a subnet override
+		log.Warnf("Found Client Subnet Override. This option is deprecated, please use nfsClientAllowList instead")
 		priv.Rule = append(priv.Rule, webapi.PrivilegeRule{
 			Async:      true,
 			Client:     dsm.ClientSubnetOverride,
@@ -343,6 +374,9 @@ func (ns *nodeServer) setNFSVolumePrivilege(sourcePath string, hostnames []strin
 		// this code grabs all host IP addresses
 		// assumes that no special network has been defined
 		for _, hostname := range hostnames {
+			if ruleContainsHost(priv.Rule, hostname) {
+				continue
+			}
 			priv.Rule = append(priv.Rule, webapi.PrivilegeRule{
 				Async:      true,
 				Client:     hostname,

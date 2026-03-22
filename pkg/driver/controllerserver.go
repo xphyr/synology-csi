@@ -208,6 +208,16 @@ func (cs *controllerServer) CreateVolume(ctx context.Context, req *csi.CreateVol
 		}
 	}
 
+	nfsClientAllowList := strings.ToLower(params["nfsClientAllowList"])
+	if nfsClientAllowList == "" {
+		// set the default of "node" if this option is not set
+		nfsClientAllowList = utils.NfsClientAllowListDefault
+	}
+
+	if nfsClientAllowList != "*" && nfsClientAllowList != utils.NfsClientAllowListDefault && !utils.IsValidCIDR(nfsClientAllowList) {
+		return nil, status.Errorf(codes.InvalidArgument, "Invalid nfsClientAllowList: %s", nfsClientAllowList)
+	}
+
 	devAttribs := parseDevAttribs(params)
 
 	if enabled, exists := devAttribs["emulate_tpu"]; exists && enabled && !isThin {
@@ -251,6 +261,7 @@ func (cs *controllerServer) CreateVolume(ctx context.Context, req *csi.CreateVol
 		DevAttribs:          devAttribs,
 		EnableRecycleBin:    enableRecycleBin,
 		RecycleBinAdminOnly: recycleBinAdminOnly,
+		NfsClientAllowList:  nfsClientAllowList,
 	}
 
 	// idempotency
@@ -278,13 +289,14 @@ func (cs *controllerServer) CreateVolume(ctx context.Context, req *csi.CreateVol
 			CapacityBytes: k8sVolume.SizeInBytes,
 			ContentSource: volContentSrc,
 			VolumeContext: map[string]string{
-				"dsm":              k8sVolume.DsmIp,
-				"protocol":         k8sVolume.Protocol,
-				"source":           k8sVolume.Source,
-				"formatOptions":    formatOptions,
-				"mountPermissions": mountPermissions,
-				"baseDir":          k8sVolume.BaseDir,
-				"uuid":             k8sVolume.Lun.Uuid,
+				"dsm":                k8sVolume.DsmIp,
+				"protocol":           k8sVolume.Protocol,
+				"source":             k8sVolume.Source,
+				"formatOptions":      formatOptions,
+				"mountPermissions":   mountPermissions,
+				"baseDir":            k8sVolume.BaseDir,
+				"uuid":               k8sVolume.Lun.Uuid,
+				"nfsClientAllowList": k8sVolume.NfsClientAllowList,
 			},
 		},
 	}, nil

@@ -19,6 +19,8 @@ const (
 	ProtocolNfs     = "nfs"
 	ProtocolDefault = ProtocolIscsi
 
+	NfsClientAllowListDefault = "nodes"
+
 	AuthTypeReadWrite AuthType = "rw"
 	AuthTypeReadOnly  AuthType = "ro"
 	AuthTypeNoAccess  AuthType = "no"
@@ -77,4 +79,16 @@ func LookupIPv4(name string) ([]string, error) {
 	}
 
 	return nil, fmt.Errorf("failed to LookupIPv4 by local resolver for: %s", name)
+}
+
+func IsValidCIDR(cidrStr string) bool {
+	if strings.TrimSpace(cidrStr) == "" {
+		return false
+	}
+	for _, cidr := range strings.Split(cidrStr, ",") {
+		if _, _, err := net.ParseCIDR(strings.TrimSpace(cidr)); err != nil {
+			return false
+		}
+	}
+	return true
 }
