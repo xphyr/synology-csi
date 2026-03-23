@@ -433,7 +433,7 @@ func (dsm *DSM) ShareNfsPrivilegeLoad(shareName string) (SharePrivilege, error) 
 	if err != nil {
 		return SharePrivilege{}, err
 	}
-
+	info.ShareName = shareName
 	return info, nil
 }
 

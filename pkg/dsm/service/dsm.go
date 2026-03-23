@@ -442,9 +442,9 @@ func (service *DsmService) createVolumeByVolume(dsm *webapi.DSM, spec *models.Cr
 	return DsmLunToK8sVolume(dsm.Ip, lunInfo, targetInfo), nil
 }
 
-func DsmShareToK8sVolume(dsmIp string, info webapi.ShareInfo, protocol string) *models.K8sVolumeRespSpec {
+func DsmShareToK8sVolume(dsmIp string, info webapi.ShareInfo, spec *models.CreateK8sVolumeSpec) *models.K8sVolumeRespSpec {
 	var source, baseDir string
-	switch protocol {
+	switch spec.Protocol {
 	case utils.ProtocolSmb:
 		source = "//" + dsmIp + "/" + info.Name
 	case utils.ProtocolNfs:
@@ -453,15 +453,16 @@ func DsmShareToK8sVolume(dsmIp string, info webapi.ShareInfo, protocol string) *
 	}
 
 	return &models.K8sVolumeRespSpec{
-		DsmIp:       dsmIp,
-		VolumeId:    info.Uuid,
-		SizeInBytes: utils.MBToBytes(info.QuotaValueInMB),
-		Location:    info.VolPath,
-		Name:        info.Name,
-		Source:      source,
-		Protocol:    protocol,
-		Share:       info,
-		BaseDir:     baseDir,
+		DsmIp:              dsmIp,
+		VolumeId:           info.Uuid,
+		SizeInBytes:        utils.MBToBytes(info.QuotaValueInMB),
+		Location:           info.VolPath,
+		Name:               info.Name,
+		Source:             source,
+		Protocol:           spec.Protocol,
+		Share:              info,
+		BaseDir:            baseDir,
+		NfsClientAllowList: spec.NfsClientAllowList,
 	}
 }
 

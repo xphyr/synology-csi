@@ -19,7 +19,7 @@ const (
 	ProtocolNfs     = "nfs"
 	ProtocolDefault = ProtocolIscsi
 
-	NfsClientAllowListDefault = "nodes"
+	NfsClientAllowListDefault = "node"
 
 	AuthTypeReadWrite AuthType = "rw"
 	AuthTypeReadOnly  AuthType = "ro"

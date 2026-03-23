@@ -78,7 +78,7 @@ func (service *DsmService) createSMBorNFSVolumeBySnapshot(dsm *webapi.DSM, spec 
 
 	log.Debugf("[%s] createSMBorNFSVolumeBySnapshot Successfully. VolumeId: %s", dsm.Ip, shareInfo.Uuid)
 
-	return DsmShareToK8sVolume(dsm.Ip, shareInfo, spec.Protocol), nil
+	return DsmShareToK8sVolume(dsm.Ip, shareInfo, spec), nil
 }
 
 func (service *DsmService) createSMBorNFSVolumeByVolume(dsm *webapi.DSM, spec *models.CreateK8sVolumeSpec, srcShareInfo webapi.ShareInfo) (*models.K8sVolumeRespSpec, error) {
@@ -125,7 +125,7 @@ func (service *DsmService) createSMBorNFSVolumeByVolume(dsm *webapi.DSM, spec *m
 
 	log.Debugf("[%s] createSMBorNFSVolumeByVolume Successfully. VolumeId: %s", dsm.Ip, shareInfo.Uuid)
 
-	return DsmShareToK8sVolume(dsm.Ip, shareInfo, spec.Protocol), nil
+	return DsmShareToK8sVolume(dsm.Ip, shareInfo, spec), nil
 }
 
 func (service *DsmService) createSMBorNFSVolumeByDsm(dsm *webapi.DSM, spec *models.CreateK8sVolumeSpec) (*models.K8sVolumeRespSpec, error) {
@@ -185,7 +185,7 @@ func (service *DsmService) createSMBorNFSVolumeByDsm(dsm *webapi.DSM, spec *mode
 
 	// 4. Set Share Permission
 	// if the NfsClientAllowList is not "node", we need to set the share permission based on the NfsClientAllowed setting
-	if spec.NfsClientAllowList != "node" {
+	if spec.NfsClientAllowList != utils.NfsClientAllowListDefault {
 		priv, err := dsm.ShareNfsPrivilegeLoad(spec.ShareName)
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "%s", fmt.Errorf("failed to load share NFS privilege. %v", err))
@@ -204,11 +204,16 @@ func (service *DsmService) createSMBorNFSVolumeByDsm(dsm *webapi.DSM, spec *mode
 				Sys:              true,
 			},
 		})
+		err = dsm.ShareNfsPrivilegeSave(priv)
+		if err != nil {
+			log.Printf("Failed to save share NFS privilege. Priv:%v. %v", priv, err)
+			return nil, status.Errorf(codes.Internal, "%s", fmt.Errorf("failed to save share NFS privilege. %v", err))
+		}
 	}
 
 	log.Debugf("[%s] createSMBorNFSVolumeByDsm Successfully. VolumeId: %s", dsm.Ip, shareInfo.Uuid)
 
-	return DsmShareToK8sVolume(dsm.Ip, shareInfo, spec.Protocol), nil
+	return DsmShareToK8sVolume(dsm.Ip, shareInfo, spec), nil
 }
 
 func (service *DsmService) listSMBorNFSVolumes(dsmIp string) (infos []*models.K8sVolumeRespSpec) {
@@ -238,9 +243,9 @@ func (service *DsmService) listSMBorNFSVolumes(dsmIp string) (infos []*models.K8
 				continue
 			}
 			if len(sharePrivilege.Rule) > 0 {
-				infos = append(infos, DsmShareToK8sVolume(dsm.Ip, share, utils.ProtocolNfs))
+				infos = append(infos, DsmShareToK8sVolume(dsm.Ip, share, &models.CreateK8sVolumeSpec{Protocol: utils.ProtocolNfs}))
 			} else {
-				infos = append(infos, DsmShareToK8sVolume(dsm.Ip, share, utils.ProtocolSmb))
+				infos = append(infos, DsmShareToK8sVolume(dsm.Ip, share, &models.CreateK8sVolumeSpec{Protocol: utils.ProtocolSmb}))
 			}
 		}
 	}

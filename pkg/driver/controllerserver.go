@@ -208,13 +208,15 @@ func (cs *controllerServer) CreateVolume(ctx context.Context, req *csi.CreateVol
 		}
 	}
 
-	nfsClientAllowList := strings.ToLower(params["nfsClientAllowList"])
+	nfsClientAllowList := params["nfsClientAllowList"]
 	if nfsClientAllowList == "" {
 		// set the default of "node" if this option is not set
+		log.Debugf("nfsClientAllowList is not set, using default: %s", utils.NfsClientAllowListDefault)
 		nfsClientAllowList = utils.NfsClientAllowListDefault
 	}
 
 	if nfsClientAllowList != "*" && nfsClientAllowList != utils.NfsClientAllowListDefault && !utils.IsValidCIDR(nfsClientAllowList) {
+		log.Errorf("Invalid nfsClientAllowList: %s", nfsClientAllowList)
 		return nil, status.Errorf(codes.InvalidArgument, "Invalid nfsClientAllowList: %s", nfsClientAllowList)
 	}
 
