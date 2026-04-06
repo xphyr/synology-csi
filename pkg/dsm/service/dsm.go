@@ -598,11 +598,12 @@ func (service *DsmService) CreateVolume(spec *models.CreateK8sVolumeSpec) (*mode
 
 		var k8sVolume *models.K8sVolumeRespSpec
 		var err error
-		if spec.Protocol == utils.ProtocolIscsi {
+		switch spec.Protocol {
+		case utils.ProtocolIscsi:
 			k8sVolume, err = service.createVolumeByDsm(dsm, spec)
-		} else if spec.Protocol == utils.ProtocolSmb {
+		case utils.ProtocolSmb:
 			k8sVolume, err = service.createSMBorNFSVolumeByDsm(dsm, spec)
-		} else if spec.Protocol == utils.ProtocolNfs {
+		case utils.ProtocolNfs:
 			if !isNfsVersionSupport(dsm, spec.NfsVersion) {
 				continue
 			}

@@ -91,7 +91,12 @@ func (t *tools) getExistedVolumeMountPath(targetIqn string, mappingIndex int) st
 func getVolumeMountPath(iscsiDevPaths []string) string {
 	var path string
 
-	if len(iscsiDevPaths) > 1 { // check multipath exist
+	switch len(iscsiDevPaths) {
+	case 0:
+		return ""
+	case 1:
+		path = iscsiDevPaths[0]
+	default: // len > 1, check multipath exist
 		devices, err := lsblk(iscsiDevPaths, true)
 		if err != nil {
 			log.Errorf("Failed to lsblk for iscsi devices: %v", err)
@@ -104,10 +109,6 @@ func getVolumeMountPath(iscsiDevPaths []string) string {
 			return ""
 		}
 		path = filepath.Join("/dev/mapper", multipathDevice.Name)
-	} else if len(iscsiDevPaths) == 1 {
-		path = iscsiDevPaths[0]
-	} else {
-		return ""
 	}
 
 	if err := waitForDevicePathToExist(path); err != nil {
@@ -327,10 +328,6 @@ func (ns *nodeServer) setNFSVolumePrivilege(sourcePath string, hostnames []strin
 	if err != nil {
 		return fmt.Errorf("failed to get DSM[%s]", dsmIp)
 	}
-
-	//priv := webapi.SharePrivilege{
-	//	ShareName: shareName,
-	//}
 
 	// load existing privileges
 	priv, err := dsm.ShareNfsPrivilegeLoad(shareName)

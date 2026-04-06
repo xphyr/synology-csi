@@ -43,7 +43,7 @@ func BytesToMB(size int64) int64 {
 	return size / UnitMB
 }
 
-// Ceiling
+// Ceiling.
 func BytesToMBCeil(size int64) int64 {
 	return (size + UnitMB - 1) / UnitMB
 }

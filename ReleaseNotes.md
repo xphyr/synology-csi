@@ -68,3 +68,8 @@ This release introduces potentially **BREAKING CHANGES** If you are converting f
         - Enabled **Container Image Signing** using `cosign` (Keyless signing).
         - Added **SBOM** (Software Bill of Materials) generation for all release artifacts.
       - **Build Hygiene**: Removed mutating hooks (e.g., `go mod tidy`) from the release pipeline to ensure immutable builds.
+
+# v1.5.1
+  - Made change to how we handle nfsClientAccess lists. Previously we would set up a static entry as part of the client-config.yaml file. We are now settings this as a part of the storageclass definition. This allows for better control over the nfsClientAccess list and allows for the use of CIDR notation and wildcard notation.
+    - **NOTE:** This is a "breaking change". You will need to update your storageclass definition file to include the nfsClientAccess list, if you need this feature. If you do not include the nfsClientAccess list, the default value is "node" which reverts to the upstream behavior of only allowing the node to access the share.
+    - Need to look at snapshot functionality it may need to be fixed to support this as well.

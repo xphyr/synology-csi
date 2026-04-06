@@ -35,7 +35,7 @@ func (BadParametersError) Error() string {
 	return "Invalid input value"
 }
 
-// ISCSI errors
+// ISCSI errors.
 func (NoSuchLunError) Error() string {
 	return "No such LUN"
 }
@@ -64,7 +64,7 @@ func (e IscsiDefaultError) Error() string {
 	return fmt.Sprintf("ISCSI API error. Error code: %d", e.ErrCode)
 }
 
-// Share errors
+// Share errors.
 func (NoSuchShareError) Error() string {
 	return "No such share"
 }

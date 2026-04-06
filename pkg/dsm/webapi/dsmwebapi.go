@@ -185,7 +185,7 @@ func (dsm *DSM) Login() error {
 
 	resp, err := dsm.sendRequestWithoutConnectionCheck("", &LoginResp{}, params, "webapi/auth.cgi")
 	if err != nil {
-		r, _ := regexp.Compile("passwd=.*&")
+		r := regexp.MustCompile("passwd=.*&")
 		temp := r.ReplaceAllString(err.Error(), "")
 
 		return fmt.Errorf("%s", temp)

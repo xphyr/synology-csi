@@ -11,7 +11,7 @@ import (
 	"k8s.io/utils/exec"
 )
 
-// defaultSearchPath for running commands without absolute paths
+// defaultSearchPath for running commands without absolute paths.
 var defaultSearchPath = []string{
 	"/usr/local/sbin",
 	"/usr/local/bin",
@@ -34,7 +34,7 @@ type hostexec struct {
 	chrootDir  string
 }
 
-// New creates an instance of hostexec to execute commands in the given environment
+// New creates an instance of hostexec to execute commands in the given environment.
 func New(cmdMap map[string]string, chrootDir string) (Executor, error) {
 	// If chroot directory is defined, check that directory exists or return an error
 	if chrootDir != "" {

@@ -194,6 +194,7 @@ func lsblk(devicePaths []string, strict bool) ([]Device, error) {
 		if parent.Children == nil {
 			parent.Children = []Device{}
 		}
+		//nolint:gocritic // intentional branch from base slice
 		parent.Children = append(devicesMap[pkName].Children, *device)
 	}
 

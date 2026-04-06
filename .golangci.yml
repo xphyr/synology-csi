@@ -22,7 +22,7 @@ linters:
     # unused detects unused variables, constants, functions, etc.
     - unused
     # gosec is a security checker
-    # - gosec
+    #- gosec
     # revive is a more opinionated, customizable alternative to golint
     - whitespace
     # misspell checks for misspelled words
@@ -32,11 +32,10 @@ linters:
     # bidichk checks for bidirectional Unicode characters
     - bidichk
     # gocritic checks for code quality issues
-    # - gocritic
+    - gocritic
     # govet checks for suspicious constructs and potential bugs
     - govet
-    # modernize checks for modern Go language features
-    # - modernize
+
     
   disable:
     - errcheck

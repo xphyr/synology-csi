@@ -304,7 +304,7 @@ func TestHostexec_wrap(t *testing.T) {
 	}
 }
 
-// dummyCmd statisfies the interface for exec.Cmd for testing purposes
+// dummyCmd statisfies the interface for exec.Cmd for testing purposes.
 type dummyCmd struct{}
 
 func (dummyCmd) Run() error                         { return nil }
@@ -321,7 +321,7 @@ func (dummyCmd) Start() error                       { return nil }
 func (dummyCmd) Wait() error                        { return nil }
 func (dummyCmd) Stop()                              {}
 
-// dummyInterface satisfies the interface for exec.Interface for testing purposes
+// dummyInterface satisfies the interface for exec.Interface for testing purposes.
 type dummyInterface struct {
 	commandFunc        func(string, ...string) exec.Cmd
 	commandContextFunc func(context.Context, string, ...string) exec.Cmd
